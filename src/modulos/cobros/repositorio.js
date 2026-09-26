@@ -8,6 +8,49 @@ const DETALLE = `
   JOIN pasaje.usuarios u ON u.id = c.pasajero_id
 `;
 
+/**
+ * Bloquea el boleto (hasta el fin de la transacción) y trae su cobro vigente, en una consulta.
+ * @returns {Promise<{ boleto: object | null, cobro: object | null }>}
+ */
+export async function bloquearBoletoConCobro(bd, bid) {
+  const { rows } = await bd.query(
+    `SELECT b.bid, b.usuario_id, b.categoria, b.monto_reservado, b.expira_en, b.estado,
+       c.id AS c_id, c.recolector_id AS c_recolector_id, c.unidad_id AS c_unidad_id,
+       c.monto AS c_monto, c.ocurrido_en AS c_ocurrido_en, c.sincronizado_en AS c_sincronizado_en,
+       c.confirmado_por AS c_confirmado_por
+     FROM pasaje.boletos b
+     LEFT JOIN pasaje.cobros c ON c.bid = b.bid AND c.anulado_en IS NULL
+     WHERE b.bid = $1
+     FOR UPDATE OF b`,
+    [bid],
+  );
+  const fila = rows[0];
+  if (!fila) return { boleto: null, cobro: null };
+  const {
+    c_id: id,
+    c_recolector_id,
+    c_unidad_id,
+    c_monto,
+    c_ocurrido_en,
+    c_sincronizado_en,
+    c_confirmado_por,
+    ...boleto
+  } = fila;
+  const cobro = id
+    ? {
+        id,
+        bid,
+        recolector_id: c_recolector_id,
+        unidad_id: c_unidad_id,
+        monto: c_monto,
+        ocurrido_en: c_ocurrido_en,
+        sincronizado_en: c_sincronizado_en,
+        confirmado_por: c_confirmado_por,
+      }
+    : null;
+  return { boleto, cobro };
+}
+
 /** Cobro vigente (no anulado) de un boleto, o null. */
 export async function buscarVigentePorBid(bd, bid) {
   const { rows } = await bd.query(
@@ -33,10 +76,13 @@ export async function listarPorRecolector(bd, recolectorId, desde) {
   return rows;
 }
 
-/** @returns {Promise<string>} id del cobro */
+/** Inserta el cobro y marca el boleto como usado, en una consulta. @returns {Promise<string>} id */
 export async function insertar(bd, c) {
   const { rows } = await bd.query(
-    `INSERT INTO pasaje.cobros
+    `WITH usado AS (
+       UPDATE pasaje.boletos SET estado = 'usado', actualizado_en = now() WHERE bid = $1
+     )
+     INSERT INTO pasaje.cobros
        (bid, pasajero_id, recolector_id, unidad_id, tramo_id, tabulador_id, linea_codigo,
         tramo_codigo, tramo_nombre, unidad_codigo, categoria_aplicada, monto, monto_recolector,
         metodo, ocurrido_en, confirmado_por)

@@ -1,7 +1,7 @@
 import http from 'node:http';
 import { crearApp } from './app.js';
 import { config } from './config/index.js';
-import { pool } from './bd/pool.js';
+import { calentarPool, pool } from './bd/pool.js';
 import { iniciarTiempoReal } from './tiempoReal/socket.js';
 import { programarVencimientos } from './trabajos/vencerBoletos.js';
 import { logger } from './utils/logger.js';
@@ -22,6 +22,7 @@ servidor.on('error', (error) => {
 
 servidor.listen(config.puerto, () => {
   logger.info(`Pasaje escuchando en http://0.0.0.0:${config.puerto}/api/v1`);
+  calentarPool().catch((error) => logger.warn({ err: error }, 'no se pudo calentar la BD'));
 });
 
 async function apagar(senal) {

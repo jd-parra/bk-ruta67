@@ -8,6 +8,7 @@ import { boletoARaw, firmarBoleto, rawABoleto, verificarFirma } from '../shared/
 import { desdeBase64url } from '../shared/bytes.js';
 import { pool } from '../src/bd/pool.js';
 import { vencerBoletos } from '../src/trabajos/vencerBoletos.js';
+import { invalidarCaches } from '../src/utils/cache.js';
 import { prepararBd } from './ayudantes/bd.js';
 import { API, app, como, espiarEventos, TEL, verificarLibro } from './ayudantes/api.js';
 
@@ -208,6 +209,31 @@ describe('sincronizar cobros', () => {
     assert.equal(billetera.boletosActivos, 4);
   });
 
+  test('el cobro deja dos movimientos con el saldo correcto después de cada uno', async () => {
+    const { rows } = await pool.query(
+      `SELECT tipo, monto, saldo_disponible_despues AS despues FROM pasaje.movimientos
+       WHERE cobro_id = (SELECT id FROM pasaje.cobros WHERE bid = $1 AND anulado_en IS NULL)
+       ORDER BY tipo`,
+      [boletosAna[0].bid],
+    );
+    assert.deepEqual(rows, [
+      { tipo: 'cobro', monto: 0, despues: 30000 },
+      { tipo: 'liberacion', monto: 4000, despues: 34000 },
+    ]);
+  });
+
+  test('emitir 5 boletos dejó 5 reservas con el saldo bajando de 14.000 en 14.000', async () => {
+    const { rows } = await pool.query(
+      `SELECT saldo_disponible_despues AS despues FROM pasaje.movimientos
+       WHERE tipo = 'reserva' AND usuario_id = '00000000-0000-4000-8000-000000000001'
+       ORDER BY despues DESC`,
+    );
+    assert.deepEqual(
+      rows.map((r) => r.despues),
+      [86000, 72000, 58000, 44000, 30000],
+    );
+  });
+
   test('emite cobro:confirmado a la sala de Ana con cobro y billetera', () => {
     const evento = eventos.find((e) => e.evento === 'cobro:confirmado');
     assert.equal(evento.sala, 'usuario:00000000-0000-4000-8000-000000000001');
@@ -267,8 +293,10 @@ describe('sincronizar cobros', () => {
       `UPDATE pasaje.tramos SET tarifa_manual = 50000 WHERE linea_id = $1 AND codigo = 2`,
       [linea1],
     );
+    invalidarCaches(); // cambiamos el tramo por SQL, no por la central
     const res = await sync(TEL.LUIS, cobroLocal(boletosPedro[0].raw, 2));
     await pool.query(`UPDATE pasaje.tramos SET tarifa_manual = NULL WHERE linea_id = $1`, [linea1]);
+    invalidarCaches();
     assert.equal(res.body.resultados[0].codigo, 'BOLETO_INSUFICIENTE');
   });
 

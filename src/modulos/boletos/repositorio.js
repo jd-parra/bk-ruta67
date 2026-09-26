@@ -1,11 +1,34 @@
 const COLUMNAS = 'bid, usuario_id, categoria, monto_reservado, expira_en, estado';
 
-export async function insertar(bd, { bid, usuarioId, categoria, montoReservado, expiraEn }) {
+/** Inserta varios boletos en una sola consulta. */
+export async function insertarVarios(bd, boletos) {
   await bd.query(
     `INSERT INTO pasaje.boletos (bid, usuario_id, categoria, monto_reservado, expira_en)
-     VALUES ($1, $2, $3, $4, $5)`,
-    [bid, usuarioId, categoria, montoReservado, expiraEn],
+     SELECT * FROM unnest($1::uuid[], $2::uuid[], $3::text[], $4::bigint[], $5::timestamptz[])`,
+    [
+      boletos.map((b) => b.bid),
+      boletos.map((b) => b.usuario_id),
+      boletos.map((b) => b.categoria),
+      boletos.map((b) => b.monto_reservado),
+      boletos.map((b) => b.expira_en),
+    ],
   );
+}
+
+/**
+ * Bloquea la billetera (hasta el fin de la transacción) y cuenta los boletos activos, en una consulta.
+ * @returns {Promise<{ disponible: number, activos: number }>}
+ */
+export async function bloquearParaEmitir(bd, usuarioId) {
+  const { rows } = await bd.query(
+    `SELECT b.saldo_disponible AS disponible,
+       (SELECT count(*)::int FROM pasaje.boletos x
+        WHERE x.usuario_id = b.usuario_id AND x.estado = 'activo' AND x.expira_en > now()) AS activos
+     FROM pasaje.billeteras b WHERE b.usuario_id = $1 FOR UPDATE`,
+    [usuarioId],
+  );
+  if (!rows[0]) throw new Error(`El pasajero ${usuarioId} no tiene billetera`);
+  return rows[0];
 }
 
 export async function listarActivos(bd, usuarioId) {

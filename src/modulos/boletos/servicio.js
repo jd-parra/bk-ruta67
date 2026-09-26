@@ -7,7 +7,7 @@ import { EVENTOS, SALAS } from '../../tiempoReal/eventos.js';
 import { emitir } from '../../tiempoReal/emisor.js';
 import { ErrorApp } from '../../utils/ErrorApp.js';
 import { obtenerLlaves } from '../../utils/llaves.js';
-import { bloquearBilletera, moverSaldo, TIPOS_MOVIMIENTO } from '../billetera/libro.js';
+import { moverSaldo, TIPOS_MOVIMIENTO } from '../billetera/libro.js';
 import { obtenerBilletera } from '../billetera/servicio.js';
 import { lineasParaTarifas } from '../lineas/servicio.js';
 import { vigenteYProximo } from '../tabuladores/servicio.js';
@@ -24,22 +24,37 @@ import * as repositorio from './repositorio.js';
  */
 export async function emitirBoletos(usuario, cantidad) {
   const categoria = categoriaEfectiva(usuario);
+  const montoReservado = await calcularReserva(categoria);
   const boletos = await conTransaccion(async (cliente) => {
-    const saldos = await bloquearBilletera(cliente, usuario.id);
-    const activos = await repositorio.listarActivos(cliente, usuario.id);
-    const montoReservado = await calcularReserva(cliente, categoria);
+    const { disponible, activos } = await repositorio.bloquearParaEmitir(cliente, usuario.id);
     const aEmitir = cuantosEmitir({
       pedidos: cantidad,
-      libres: LIMITES.MAX_BOLETOS_ACTIVOS - activos.length,
-      disponible: saldos.saldo_disponible,
+      libres: LIMITES.MAX_BOLETOS_ACTIVOS - activos,
+      disponible,
       montoReservado,
     });
+    if (aEmitir === 0) return [];
 
-    const emitidos = [];
-    for (let i = 0; i < aEmitir; i++) {
-      emitidos.push(await emitirUno(cliente, usuario.id, categoria, montoReservado));
-    }
-    return emitidos;
+    const expiraEn = new Date(calcularExpira(new Date()) * 1000);
+    const nuevos = Array.from({ length: aEmitir }, () => ({
+      bid: randomUUID(),
+      usuario_id: usuario.id,
+      categoria,
+      monto_reservado: montoReservado,
+      expira_en: expiraEn,
+    }));
+    await repositorio.insertarVarios(cliente, nuevos);
+    await moverSaldo(
+      cliente,
+      usuario.id,
+      nuevos.map((b) => ({
+        tipo: TIPOS_MOVIMIENTO.RESERVA,
+        disponible: -montoReservado,
+        reservado: montoReservado,
+        boletoBid: b.bid,
+      })),
+    );
+    return nuevos.map(serializarBoleto);
   });
   return { boletos, billetera: await obtenerBilletera(usuario) };
 }
@@ -62,13 +77,17 @@ export async function listarActivos(usuario, bd) {
  */
 export async function revocarTodos(cliente, usuarioId) {
   const revocados = await repositorio.revocarActivos(cliente, usuarioId);
-  for (const boleto of revocados) {
-    await moverSaldo(cliente, usuarioId, {
-      tipo: TIPOS_MOVIMIENTO.LIBERACION,
-      disponible: boleto.monto_reservado,
-      reservado: -boleto.monto_reservado,
-      boletoBid: boleto.bid,
-    });
+  if (revocados.length > 0) {
+    await moverSaldo(
+      cliente,
+      usuarioId,
+      revocados.map((boleto) => ({
+        tipo: TIPOS_MOVIMIENTO.LIBERACION,
+        disponible: boleto.monto_reservado,
+        reservado: -boleto.monto_reservado,
+        boletoBid: boleto.bid,
+      })),
+    );
   }
   return revocados.length;
 }
@@ -105,37 +124,9 @@ export function cuantosEmitir({ pedidos, libres, disponible, montoReservado }) {
   return cantidad;
 }
 
-async function calcularReserva(cliente, categoria) {
-  const [{ tabulador }, lineas] = await Promise.all([
-    vigenteYProximo(cliente),
-    lineasParaTarifas(cliente),
-  ]);
+async function calcularReserva(categoria) {
+  const [{ tabulador }, lineas] = await Promise.all([vigenteYProximo(), lineasParaTarifas()]);
   return tarifaMaximaRed({ lineas, tabulador, categoria });
-}
-
-async function emitirUno(cliente, usuarioId, categoria, montoReservado) {
-  const bid = randomUUID();
-  const expira = calcularExpira(new Date());
-  await repositorio.insertar(cliente, {
-    bid,
-    usuarioId,
-    categoria,
-    montoReservado,
-    expiraEn: new Date(expira * 1000),
-  });
-  await moverSaldo(cliente, usuarioId, {
-    tipo: TIPOS_MOVIMIENTO.RESERVA,
-    disponible: -montoReservado,
-    reservado: montoReservado,
-    boletoBid: bid,
-  });
-  return serializarBoleto({
-    bid,
-    usuario_id: usuarioId,
-    categoria,
-    monto_reservado: montoReservado,
-    expira_en: new Date(expira * 1000),
-  });
 }
 
 /** Fila de boleto → `BoletoEmitido` del contrato. */

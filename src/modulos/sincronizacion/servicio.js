@@ -16,7 +16,7 @@ import * as boletos from '../boletos/repositorio.js';
 import { avisarRecolectores, revocarTodos } from '../boletos/servicio.js';
 import * as cobros from '../cobros/repositorio.js';
 import { serializarCobro } from '../cobros/serializadores.js';
-import * as lineas from '../lineas/repositorio.js';
+import { lineaParaCobrar } from '../lineas/servicio.js';
 import { unidadDelRecolector } from '../recolector/servicio.js';
 import { feriadosRecientes, vigenteEn, vigenteYProximo } from '../tabuladores/servicio.js';
 
@@ -46,9 +46,9 @@ export async function sincronizarCobros(recolector, cobrosLocales) {
 async function armarContexto(recolector) {
   const unidad = await unidadDelRecolector(recolector.id);
   const [linea, { todos }, feriados] = await Promise.all([
-    lineas.buscarConTramos(pool, unidad.linea_id),
-    vigenteYProximo(pool),
-    feriadosRecientes(pool),
+    lineaParaCobrar(unidad.linea_id),
+    vigenteYProximo(),
+    feriadosRecientes(),
   ]);
   return { recolector, unidad, linea, tabuladores: todos, feriados, llaves: obtenerLlaves() };
 }
@@ -95,10 +95,8 @@ function leerBoleto(raw, llavePublica) {
 
 async function registrarCobro(cliente, { contexto, local, boleto, tramo, tabulador, monto }) {
   const { bid } = boleto;
-  const fila = await boletos.bloquear(cliente, bid);
+  const { boleto: fila, cobro: existente } = await cobros.bloquearBoletoConCobro(cliente, bid);
   if (!fila) return rechazado(bid, CODIGOS_ERROR.BOLETO_INVALIDO); // firmado pero no emitido aquí
-
-  const existente = await cobros.buscarVigentePorBid(cliente, bid);
   if (existente) return resolverRepetido(cliente, { contexto, local, fila, existente, monto });
 
   if (fila.estado === 'revocado' || fila.estado === 'usado') {
@@ -125,7 +123,6 @@ async function registrarCobro(cliente, { contexto, local, boleto, tramo, tabulad
     ocurridoEn: local.ocurridoEn,
     confirmadoPor: ['recolector'],
   });
-  await boletos.cambiarEstado(cliente, bid, 'usado');
   await cobrarDeLaReserva(cliente, fila, monto, cobroId);
   return { bid, estado: ESTADOS.OK, cobroId, pasajeroId: fila.usuario_id };
 }
@@ -133,18 +130,11 @@ async function registrarCobro(cliente, { contexto, local, boleto, tramo, tabulad
 /** El cobro sale de lo reservado; la diferencia vuelve al disponible (§8.2). */
 async function cobrarDeLaReserva(cliente, boleto, monto, cobroId) {
   const reservado = boleto.monto_reservado;
-  await moverSaldo(cliente, boleto.usuario_id, {
-    tipo: TIPOS_MOVIMIENTO.COBRO,
-    reservado: -reservado,
-    cobroId,
-  });
+  const cambios = [{ tipo: TIPOS_MOVIMIENTO.COBRO, reservado: -reservado, cobroId }];
   if (reservado > monto) {
-    await moverSaldo(cliente, boleto.usuario_id, {
-      tipo: TIPOS_MOVIMIENTO.LIBERACION,
-      disponible: reservado - monto,
-      cobroId,
-    });
+    cambios.push({ tipo: TIPOS_MOVIMIENTO.LIBERACION, disponible: reservado - monto, cobroId });
   }
+  await moverSaldo(cliente, boleto.usuario_id, cambios);
 }
 
 /**
@@ -194,9 +184,13 @@ async function completarDespuesDelCommit(resultado) {
   if (resultado.avisarRecolectores) avisarRecolectores();
   if (!resultado.cobroId) return resultado;
 
-  const cobro = serializarCobro(await cobros.buscarDetalle(pool, resultado.cobroId));
-  if (resultado.estado === ESTADOS.OK) {
-    const billetera = await obtenerBilleteraPorId(resultado.pasajeroId);
+  const esNuevo = resultado.estado === ESTADOS.OK;
+  const [detalle, billetera] = await Promise.all([
+    cobros.buscarDetalle(pool, resultado.cobroId),
+    esNuevo ? obtenerBilleteraPorId(resultado.pasajeroId) : null,
+  ]);
+  const cobro = serializarCobro(detalle);
+  if (esNuevo) {
     emitir(SALAS.usuario(resultado.pasajeroId), EVENTOS.COBRO_CONFIRMADO, { cobro, billetera });
   }
   const { bid, estado, codigo } = resultado;

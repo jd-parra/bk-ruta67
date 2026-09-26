@@ -1,11 +1,32 @@
 import { CODIGOS_ERROR } from '../../../shared/codigos.js';
 import { fechaVenezuela, tabuladorVigente } from '../../../shared/tarifa.js';
 import { pool } from '../../bd/pool.js';
+import { memoizar } from '../../utils/cache.js';
 import { ErrorApp } from '../../utils/ErrorApp.js';
 import * as repositorio from './repositorio.js';
 import { serializarTabulador } from './serializadores.js';
 
 const DIAS_FERIADOS_PASADOS = 7;
+const TTL_MS = 60_000;
+
+const cacheTabuladores = memoizar(
+  async () => (await repositorio.listar(pool)).map(serializarTabulador),
+  TTL_MS,
+);
+const cacheFeriados = memoizar(() => {
+  const desde = new Date(Date.now() - DIAS_FERIADOS_PASADOS * 24 * 60 * 60 * 1000);
+  return repositorio.listarFeriados(pool, fechaVenezuela(desde).fecha);
+}, TTL_MS);
+
+/**
+ * Todos los tabuladores en forma de contrato. Con el pool usa la caché; dentro de una
+ * transacción consulta directo (para ver lo que la transacción aún no confirmó).
+ * @param {import('pg').Pool | import('pg').PoolClient} [bd]
+ */
+export async function listarTodos(bd = pool) {
+  if (bd === pool) return cacheTabuladores.obtener();
+  return (await repositorio.listar(bd)).map(serializarTabulador);
+}
 
 /**
  * Tabulador vigente y el próximo (si ya hay uno cargado a futuro), en forma de contrato.
@@ -15,7 +36,7 @@ const DIAS_FERIADOS_PASADOS = 7;
  * @throws {ErrorApp} si no hay ningún tabulador vigente
  */
 export async function vigenteYProximo(bd = pool, ahora = new Date()) {
-  const todos = (await repositorio.listar(bd)).map(serializarTabulador);
+  const todos = await listarTodos(bd);
   const tabulador = tabuladorVigente(todos, ahora);
   if (!tabulador) {
     throw new ErrorApp(CODIGOS_ERROR.ERROR_INTERNO, 'No hay un tabulador vigente cargado', {
@@ -37,7 +58,6 @@ export function vigenteEn(todos, instante) {
 }
 
 /** Feriados desde hace una semana (sirven para cobros offline recientes). */
-export async function feriadosRecientes(bd = pool, ahora = new Date()) {
-  const desde = new Date(ahora.getTime() - DIAS_FERIADOS_PASADOS * 24 * 60 * 60 * 1000);
-  return repositorio.listarFeriados(bd, fechaVenezuela(desde).fecha);
+export function feriadosRecientes() {
+  return cacheFeriados.obtener();
 }

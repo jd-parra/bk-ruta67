@@ -4,6 +4,7 @@ import { tarifaCompleta } from '../../../shared/tarifa.js';
 import { conTransaccion, pool } from '../../bd/pool.js';
 import { EVENTOS, SALAS } from '../../tiempoReal/eventos.js';
 import { emitir } from '../../tiempoReal/emisor.js';
+import { invalidarCaches } from '../../utils/cache.js';
 import { ErrorApp } from '../../utils/ErrorApp.js';
 import { formatearBs } from '../../utils/dinero.js';
 import { crearAviso } from '../billetera/repositorio.js';
@@ -40,6 +41,7 @@ export async function crearTabulador(datos) {
     return { fila, aviso };
   });
   emitir(SALAS.rol(ROLES.PASAJERO), EVENTOS.TARIFA_AVISO, serializarAviso(tabulador.aviso));
+  invalidarCaches();
   avisarRecolectores();
   return serializarTabulador(tabulador.fila);
 }
@@ -63,6 +65,7 @@ export async function crearLinea({ codigo, nombre, tipo, tramos }) {
     await validarLineaConTabuladores(cliente, id);
     return id;
   });
+  invalidarCaches();
   avisarRecolectores();
   return buscarLineaSerializada(lineaId);
 }
@@ -78,6 +81,7 @@ export async function actualizarLinea(lineaId, { nombre, tipo, tramos = [] }) {
     for (const tramo of tramos) await lineas.guardarTramo(cliente, lineaId, tramo);
     await validarLineaConTabuladores(cliente, lineaId);
   });
+  invalidarCaches();
   avisarRecolectores();
   return buscarLineaSerializada(lineaId);
 }

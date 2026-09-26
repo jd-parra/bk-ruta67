@@ -3,7 +3,9 @@ const MAX_AVISOS = 10;
 
 export async function leerSaldos(bd, usuarioId) {
   const { rows } = await bd.query(
-    `SELECT saldo_disponible, saldo_reservado FROM pasaje.billeteras WHERE usuario_id = $1`,
+    `SELECT b.saldo_disponible, b.saldo_reservado, u.categoria, u.categoria_verificada
+     FROM pasaje.billeteras b JOIN pasaje.usuarios u ON u.id = b.usuario_id
+     WHERE b.usuario_id = $1`,
     [usuarioId],
   );
   return rows[0] ?? null;

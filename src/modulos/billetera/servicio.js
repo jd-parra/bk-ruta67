@@ -18,21 +18,28 @@ export async function obtenerBilletera(usuario, bd = pool) {
     repositorio.listarAvisos(bd, usuario.id),
     vigenteYProximo(bd),
   ]);
-  const descuento = tabulador.descuentos[categoriaEfectiva(usuario)];
-  const tarifaReferencia = aplicarAjustes(tabulador.urbanoMinimo, 0, descuento);
-  return serializarBilletera({ saldos, boletosActivos, tarifaReferencia, avisos });
+  return armar(usuario, saldos, boletosActivos, avisos, tabulador);
 }
 
 /**
  * Billetera por id de usuario (para eventos y respuestas después de una transacción).
+ * La categoría sale de la misma consulta de saldos: un viaje menos a la BD.
  * @param {string} usuarioId
  */
 export async function obtenerBilleteraPorId(usuarioId) {
-  const { rows } = await pool.query(
-    'SELECT id, categoria, categoria_verificada FROM pasaje.usuarios WHERE id = $1',
-    [usuarioId],
-  );
-  return obtenerBilletera(rows[0]);
+  const [saldos, boletosActivos, avisos, { tabulador }] = await Promise.all([
+    repositorio.leerSaldos(pool, usuarioId),
+    repositorio.contarBoletosActivos(pool, usuarioId),
+    repositorio.listarAvisos(pool, usuarioId),
+    vigenteYProximo(),
+  ]);
+  return armar(saldos, saldos, boletosActivos, avisos, tabulador);
+}
+
+function armar(usuario, saldos, boletosActivos, avisos, tabulador) {
+  const descuento = tabulador.descuentos[categoriaEfectiva(usuario)];
+  const tarifaReferencia = aplicarAjustes(tabulador.urbanoMinimo, 0, descuento);
+  return serializarBilletera({ saldos, boletosActivos, tarifaReferencia, avisos });
 }
 
 /**
