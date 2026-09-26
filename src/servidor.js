@@ -2,9 +2,13 @@ import http from 'node:http';
 import { crearApp } from './app.js';
 import { config } from './config/index.js';
 import { pool } from './bd/pool.js';
+import { iniciarTiempoReal } from './tiempoReal/socket.js';
+import { programarVencimientos } from './trabajos/vencerBoletos.js';
 import { logger } from './utils/logger.js';
 
 const servidor = http.createServer(crearApp());
+const io = iniciarTiempoReal(servidor);
+const tareaVencimientos = programarVencimientos();
 
 servidor.on('error', (error) => {
   if (error.code === 'EADDRINUSE') {
@@ -24,6 +28,8 @@ async function apagar(senal) {
   logger.info(`${senal} recibido, cerrando`);
   // Cierra también las conexiones keep-alive: así el puerto se libera al instante
   // y nodemon puede levantar el proceso nuevo sin chocar.
+  tareaVencimientos.stop();
+  io.close();
   servidor.close();
   servidor.closeAllConnections();
   await pool.end();

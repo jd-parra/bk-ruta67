@@ -1,6 +1,5 @@
-{
-  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2wiOiJwYXNhamVybyIsImlhdCI6MTc5MDM5MzA4MSwiZXhwIjoxNzkwOTk3ODgxLCJzdWIiOiIxNGQ3OTNkZS1iNTBlLTRjOTItYjc0My0wOGU4YTcxZWU1MDcifQ.HEnbQD_medYbQHcuSaTh57Rg0Yg8L5lIusGgaQlUWHI",
-  "usuario": {
+[
+  {
     "id": "14d793de-b50e-4c92-b743-08e8a71ee507",
     "nombre": "Estudiante Nuevo",
     "telefono": "04261112233",
@@ -10,4 +9,4 @@
     "bloqueado": false,
     "creadoEn": "2026-09-26T03:24:41.519Z"
   }
-}
+]

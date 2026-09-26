@@ -16,7 +16,7 @@ const VIOLACION_UNIQUE = '23505';
  * @throws {ErrorApp} CONFLICTO si el teléfono ya existe
  */
 export async function registrar({ nombre, telefono, clave, categoria }) {
-  const claveHash = await bcrypt.hash(clave, COSTO_BCRYPT);
+  const claveHash = await hashearClave(clave);
   try {
     const usuario = await conTransaccion((cliente) =>
       usuarios.crearPasajero(cliente, { nombre, telefono, claveHash, categoria }),
@@ -56,6 +56,16 @@ export function verificarToken(token) {
   } catch {
     throw new ErrorApp(CODIGOS_ERROR.NO_AUTENTICADO, 'Tu sesión venció, vuelve a entrar');
   }
+}
+
+/** @param {string} clave @returns {Promise<string>} */
+export function hashearClave(clave) {
+  return bcrypt.hash(clave, COSTO_BCRYPT);
+}
+
+/** ¿El error es una violación de UNIQUE de Postgres? */
+export function esViolacionUnique(error) {
+  return error?.code === VIOLACION_UNIQUE;
 }
 
 function firmarToken(usuario) {

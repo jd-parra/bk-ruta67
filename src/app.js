@@ -4,7 +4,14 @@ import pinoHttp from 'pino-http';
 import { logger } from './utils/logger.js';
 import { manejadorErrores, rutaNoEncontrada } from './middlewares/manejadorErrores.js';
 import { rutasAuth } from './modulos/auth/rutas.js';
+import { rutasBilletera } from './modulos/billetera/rutas.js';
+import { rutasBoletos } from './modulos/boletos/rutas.js';
+import { rutasCentral } from './modulos/central/rutas.js';
+import { rutasLineas } from './modulos/lineas/rutas.js';
+import { rutasPublico } from './modulos/publico/rutas.js';
+import { rutasRecolector } from './modulos/recolector/rutas.js';
 import { rutasSalud } from './modulos/salud/rutas.js';
+import { rutasUbicaciones } from './modulos/ubicaciones/rutas.js';
 
 const PREFIJO_API = '/api/v1';
 
@@ -34,8 +41,19 @@ export function crearApp() {
   app.use(express.json({ limit: '1mb' }));
 
   const api = express.Router();
-  api.use(rutasSalud);
-  api.use(rutasAuth);
+  for (const rutas of [
+    rutasSalud,
+    rutasAuth,
+    rutasPublico,
+    rutasBilletera,
+    rutasBoletos,
+    rutasLineas,
+    rutasRecolector,
+    rutasUbicaciones,
+    rutasCentral,
+  ]) {
+    api.use(rutas);
+  }
   app.use(PREFIJO_API, api);
 
   app.use(rutaNoEncontrada);

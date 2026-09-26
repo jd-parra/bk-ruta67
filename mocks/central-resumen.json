@@ -1,0 +1,44 @@
+{
+  "desde": "2026-09-25T04:00:00.000Z",
+  "cobros": 2,
+  "recaudado": 20000,
+  "pasajeros": 1,
+  "recargado": 100000,
+  "porLinea": [
+    {
+      "lineaCodigo": 1,
+      "lineaNombre": "Chorros de Milla",
+      "cobros": 2,
+      "recaudado": 20000
+    },
+    {
+      "lineaCodigo": 2,
+      "lineaNombre": "San Benito",
+      "cobros": 0,
+      "recaudado": 0
+    },
+    {
+      "lineaCodigo": 3,
+      "lineaNombre": "Mérida – Ejido",
+      "cobros": 0,
+      "recaudado": 0
+    }
+  ],
+  "porCategoria": {
+    "general": {
+      "cobros": 0,
+      "recaudado": 0
+    },
+    "estudiante": {
+      "cobros": 2,
+      "recaudado": 20000
+    },
+    "exonerado": {
+      "cobros": 0,
+      "recaudado": 0
+    }
+  },
+  "conflictosAbiertos": 1,
+  "categoriasPendientes": 1,
+  "unidadesEnLinea": 1
+}

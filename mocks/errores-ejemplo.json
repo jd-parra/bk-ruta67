@@ -1,0 +1,36 @@
+{
+  "sinToken": {
+    "error": {
+      "codigo": "NO_AUTENTICADO",
+      "mensaje": "Debes iniciar sesión"
+    }
+  },
+  "rolInvalido": {
+    "error": {
+      "codigo": "ROL_INVALIDO",
+      "mensaje": "No tienes permiso para hacer esto"
+    }
+  },
+  "cuentaBloqueada": {
+    "error": {
+      "codigo": "CUENTA_BLOQUEADA",
+      "mensaje": "Tu cuenta está bloqueada. Comunícate con la central"
+    }
+  },
+  "validacion": {
+    "error": {
+      "codigo": "VALIDACION",
+      "mensaje": "El teléfono debe tener 11 dígitos y empezar por 04",
+      "detalle": [
+        {
+          "campo": "telefono",
+          "mensaje": "El teléfono debe tener 11 dígitos y empezar por 04"
+        },
+        {
+          "campo": "clave",
+          "mensaje": "La clave es obligatoria"
+        }
+      ]
+    }
+  }
+}

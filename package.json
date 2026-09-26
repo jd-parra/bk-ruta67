@@ -18,7 +18,9 @@
     "bd:revertir": "node --env-file=.env src/bd/migrar.js down",
     "bd:semilla": "node --env-file=.env src/bd/semilla.js",
     "boleto-prueba": "node --env-file=.env scripts/boletoPrueba.js",
-    "bd:reiniciar": "npm run bd:migrar && npm run bd:semilla"
+    "bd:reiniciar": "npm run bd:migrar && npm run bd:semilla",
+    "demo": "node --env-file=.env scripts/demo.js",
+    "mocks": "NODE_ENV=test node --env-file=.env scripts/generarMocks.js"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",

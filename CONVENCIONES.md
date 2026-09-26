@@ -73,6 +73,8 @@ mocks/                    ← ejemplos JSON con la forma exacta de la API, para 
 
 Módulos: `auth`, `billetera`, `recargas`, `boletos`, `lineas`, `tabuladores`, `recolector`, `sincronizacion`, `ubicaciones`, `central`, `publico`, `mapa`.
 
+Si el handler de una ruta es de una o dos líneas (leer `req`, llamar al servicio, responder), puede ir directo en `rutas.js` sin `controlador.js`. La lógica siempre va en el servicio.
+
 **Dirección de dependencias:** `rutas → controlador → servicio → repositorio`. Un servicio puede llamar a otro servicio; un repositorio nunca llama a un servicio. El controlador no escribe SQL; el repositorio no conoce `req`/`res`.
 
 ---

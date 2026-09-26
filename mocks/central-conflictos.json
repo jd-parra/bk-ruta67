@@ -1,0 +1,27 @@
+[
+  {
+    "id": "a6b21821-4eda-476d-9586-b0c153f020a4",
+    "bid": "f435c69c-d6b3-433d-bf06-9a0a278295db",
+    "pasajero": {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "nombre": "Ana Pasajera",
+      "telefono": "04140000001",
+      "bloqueado": true
+    },
+    "cobroOriginal": {
+      "id": "aae9b1c0-765c-4efa-aad1-67c1e28f6dc5",
+      "unidadCodigo": 101,
+      "recolectorNombre": "Luis Recolector",
+      "monto": 10000,
+      "ocurridoEn": "2026-09-26T03:24:41.632Z"
+    },
+    "segundoUso": {
+      "unidadCodigo": 102,
+      "recolectorNombre": "Marta Recolectora",
+      "monto": 14000,
+      "ocurridoEn": "2026-09-26T03:24:41.730Z"
+    },
+    "creadoEn": "2026-09-26T03:24:41.741Z",
+    "resuelto": false
+  }
+]

@@ -1,6 +1,6 @@
 # Pasaje — backend
 
-Backend del MVP Pasaje (Mérida). Qué expone la API: [`CONTRATO.md`](CONTRATO.md). Cómo se escribe: [`CONVENCIONES.md`](CONVENCIONES.md). Plan: [`docs/PLAN_FASE1.md`](docs/PLAN_FASE1.md).
+Backend del MVP Pasaje (Mérida). Qué expone la API: [`CONTRATO.md`](CONTRATO.md) y la referencia rápida [`docs/API.md`](docs/API.md) (con ejemplos en `mocks/`). Cómo se escribe: [`CONVENCIONES.md`](CONVENCIONES.md). Plan: [`docs/PLAN_FASE1.md`](docs/PLAN_FASE1.md).
 
 ## Arrancar
 
@@ -11,6 +11,8 @@ npm run bd:levantar     # Postgres local en el puerto 5433 (para las pruebas)
 npm run bd:reiniciar    # migraciones + semilla en la BD de .env (¡borra los datos!)
 npm run dev             # http://localhost:3000/api/v1/salud
 npm test                # siempre usa la BD local de pruebas
+npm run demo            # flujo completo contra el backend corriendo (login → boletos → cobro → corrección)
+npm run mocks           # regenera mocks/ con respuestas reales (BD local de pruebas)
 ```
 
 Para usar Supabase, pon en `.env` la URL del **Transaction pooler** (puerto 6543) en `DATABASE_URL` y `PGSSL=true`.

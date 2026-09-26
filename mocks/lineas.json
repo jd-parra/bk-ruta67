@@ -1,0 +1,66 @@
+[
+  {
+    "id": "72c84143-0811-4fee-9a1d-7d2abf30a357",
+    "codigo": 1,
+    "nombre": "Chorros de Milla",
+    "tipo": "urbana",
+    "tramos": [
+      {
+        "id": "0680a270-618e-419d-9b20-ec1b4768be8b",
+        "codigo": 1,
+        "nombre": "Centro – Chorros de Milla",
+        "km": 5,
+        "tarifaCompleta": 20000,
+        "frecuencia": 0
+      },
+      {
+        "id": "f3a4a58a-35f0-45a8-93f0-55dacfb4da48",
+        "codigo": 2,
+        "nombre": "Centro – Milla",
+        "km": 3,
+        "tarifaCompleta": 20000,
+        "frecuencia": 0
+      }
+    ]
+  },
+  {
+    "id": "93f9f43b-0f6f-41dc-b0d3-f8504f0ce3fd",
+    "codigo": 2,
+    "nombre": "San Benito",
+    "tipo": "urbana",
+    "tramos": [
+      {
+        "id": "bb250a9b-0ffe-4653-9a44-f9f557e65a49",
+        "codigo": 1,
+        "nombre": "Centro – San Benito",
+        "km": 4,
+        "tarifaCompleta": 20000,
+        "frecuencia": 0
+      }
+    ]
+  },
+  {
+    "id": "ba7fc4ef-9d5d-4f93-be4c-3f58e5d439b8",
+    "codigo": 3,
+    "nombre": "Mérida – Ejido",
+    "tipo": "suburbana",
+    "tramos": [
+      {
+        "id": "3600ddc7-2770-4209-ad18-7888070d6ee0",
+        "codigo": 1,
+        "nombre": "Centro – Ejido",
+        "km": 9,
+        "tarifaCompleta": 28000,
+        "frecuencia": 0
+      },
+      {
+        "id": "c6731a94-3912-4e1c-9642-b9c9e70f1f54",
+        "codigo": 2,
+        "nombre": "Centro – La Parroquia",
+        "km": 6,
+        "tarifaCompleta": 28000,
+        "frecuencia": 0
+      }
+    ]
+  }
+]

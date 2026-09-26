@@ -22,6 +22,21 @@ export async function buscarPorTelefono(bd, telefono) {
 }
 
 /**
+ * Inserta un recolector (lo crea la central al asignarlo a una unidad).
+ * @param {import('pg').PoolClient} cliente
+ * @param {{ nombre: string, telefono: string, claveHash: string }} datos
+ */
+export async function crearRecolector(cliente, { nombre, telefono, claveHash }) {
+  const { rows } = await cliente.query(
+    `INSERT INTO pasaje.usuarios (nombre, telefono, clave_hash, rol)
+     VALUES ($1, $2, $3, 'recolector')
+     RETURNING ${COLUMNAS}`,
+    [nombre, telefono, claveHash],
+  );
+  return rows[0];
+}
+
+/**
  * Inserta un pasajero con su billetera vacía.
  * @param {import('pg').PoolClient} cliente dentro de una transacción
  * @param {{ nombre: string, telefono: string, claveHash: string, categoria: string }} datos

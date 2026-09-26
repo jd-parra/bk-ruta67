@@ -1,5 +1,5 @@
 {
-  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.ejemplo.firma",
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2wiOiJwYXNhamVybyIsImlhdCI6MTc5MDM5MzA4MSwiZXhwIjoxNzkwOTk3ODgxLCJzdWIiOiIwMDAwMDAwMC0wMDAwLTQwMDAtODAwMC0wMDAwMDAwMDAwMDEifQ.uKziECgVMguFIKVw1ZsnjcE4mn3etakJqmj9RKBzfQA",
   "usuario": {
     "id": "00000000-0000-4000-8000-000000000001",
     "nombre": "Ana Pasajera",
@@ -8,6 +8,6 @@
     "categoria": "estudiante",
     "categoriaVerificada": true,
     "bloqueado": false,
-    "creadoEn": "2026-09-26T01:58:54.290Z"
+    "creadoEn": "2026-09-26T03:24:41.092Z"
   }
 }

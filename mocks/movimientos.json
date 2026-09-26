@@ -1,0 +1,41 @@
+[
+  {
+    "id": "32dfd166-4e02-447b-9509-d1152501ee70",
+    "tipo": "liberacion",
+    "monto": 4000,
+    "saldoDisponibleDespues": 38000,
+    "creadoEn": "2026-09-26T03:24:41.700Z",
+    "cobroId": "53a19684-ff0a-43c3-8352-775045c17e75"
+  },
+  {
+    "id": "bf28514e-a03f-485f-b104-a523cb1db35a",
+    "tipo": "cobro",
+    "monto": 0,
+    "saldoDisponibleDespues": 34000,
+    "creadoEn": "2026-09-26T03:24:41.700Z",
+    "cobroId": "53a19684-ff0a-43c3-8352-775045c17e75"
+  },
+  {
+    "id": "0eba356e-59c7-41b4-be56-ace37352d83e",
+    "tipo": "cobro",
+    "monto": 0,
+    "saldoDisponibleDespues": 30000,
+    "creadoEn": "2026-09-26T03:24:41.647Z",
+    "cobroId": "aae9b1c0-765c-4efa-aad1-67c1e28f6dc5"
+  },
+  {
+    "id": "8fded925-73ac-48f5-921a-8c2583081dd2",
+    "tipo": "liberacion",
+    "monto": 4000,
+    "saldoDisponibleDespues": 34000,
+    "creadoEn": "2026-09-26T03:24:41.647Z",
+    "cobroId": "aae9b1c0-765c-4efa-aad1-67c1e28f6dc5"
+  },
+  {
+    "id": "0960e0d8-f5c4-4bc7-80da-81dee52d8124",
+    "tipo": "reserva",
+    "monto": -14000,
+    "saldoDisponibleDespues": 58000,
+    "creadoEn": "2026-09-26T03:24:41.558Z"
+  }
+]

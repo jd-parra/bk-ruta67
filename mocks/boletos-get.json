@@ -1,0 +1,32 @@
+[
+  {
+    "bid": "f435c69c-d6b3-433d-bf06-9a0a278295db",
+    "raw": "AfQ1xpzWs0M9vwaaCieCldsAAAAAAABAAIAAAAAAAAABAQAANrBqwHV5EmOHwcSTVq1t3yPL9aPlsWwcSC7IUxLHl19BqY095oTqnWmTO_ioNI2aFBpF3uaFhPUbqIFoqPY1Ghgkh7KRAg",
+    "montoReservado": 14000,
+    "expiraEn": "2026-10-03T03:24:41.000Z"
+  },
+  {
+    "bid": "caf27e2b-b564-4fb6-8c8e-6fb4784a3172",
+    "raw": "Acryfiu1ZE-2jI5vtHhKMXIAAAAAAABAAIAAAAAAAAABAQAANrBqwHV53D6VgoKvH9lf-dzQKzrIVUUV_PlHD-O-_FrqwxHvar1DkwZO5s9w0PIayiBnztJf55iIpNaG3kAHV8TBRxj2Aw",
+    "montoReservado": 14000,
+    "expiraEn": "2026-10-03T03:24:41.000Z"
+  },
+  {
+    "bid": "82162d83-b459-49b6-9e09-48b06cbcde74",
+    "raw": "AYIWLYO0WUm2nglIsGy83nQAAAAAAABAAIAAAAAAAAABAQAANrBqwHV5u13NEm8IBYaOFSol1KNZh4ET4UPG8RgBDyPzJc3HD8smrgUZZhvlClLQJJaQjfixNoTQD6lCTfZM4dUOlyWBCw",
+    "montoReservado": 14000,
+    "expiraEn": "2026-10-03T03:24:41.000Z"
+  },
+  {
+    "bid": "e8222d46-a1fb-4336-abcd-386fbbcecc95",
+    "raw": "AegiLUah-0M2q804b7vOzJUAAAAAAABAAIAAAAAAAAABAQAANrBqwHV53n0odbQgXLXLSZG-g0PRHy16XlFMcnayCjLwIkBLzkrzfP2MgBm7m3-0w1lBRb5M7jDP0UZfdrqXr2U0G_yECw",
+    "montoReservado": 14000,
+    "expiraEn": "2026-10-03T03:24:41.000Z"
+  },
+  {
+    "bid": "d24a5369-3f48-462d-91e3-fd36b55acc03",
+    "raw": "AdJKU2k_SEYtkeP9NrVazAMAAAAAAABAAIAAAAAAAAABAQAANrBqwHV5At6WygfkN7BHpOGBsHqxdX8In9ENi2LF5drlnov2GBy_e_En5yxuzFzzN9H1Zoh4AcmwTb-FoM1Wk1pUfqviBQ",
+    "montoReservado": 14000,
+    "expiraEn": "2026-10-03T03:24:41.000Z"
+  }
+]

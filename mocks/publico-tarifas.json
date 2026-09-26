@@ -1,0 +1,25 @@
+{
+  "tabulador": {
+    "id": "c5cde195-0b67-474e-9a43-311000165a2c",
+    "fuente": "Tabulador septiembre 2026 (valores de prueba)",
+    "vigenteDesde": "2026-09-01T04:00:00.000Z",
+    "descuentos": {
+      "general": 0,
+      "exonerado": 1,
+      "estudiante": 0.5
+    },
+    "recargoDomingoFeriado": 0,
+    "urbanoMinimo": 20000,
+    "suburbano": [
+      {
+        "monto": 28000,
+        "hastaKm": 10
+      },
+      {
+        "monto": 99000,
+        "hastaKm": 9999
+      }
+    ]
+  },
+  "proximo": null
+}

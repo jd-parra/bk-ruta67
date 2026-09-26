@@ -107,6 +107,8 @@ Stack: Node ≥ 20 ESM, Express 5, Socket.IO 4, `pg`, `node-pg-migrate`, `zod`, 
 
 ## Pasos (en orden; un PR por paso)
 
+> ✅ **Fase 1 completa** (26/09/2026): pasos 0 a 13 implementados, 139 pruebas y `npm run demo` de punta a punta contra Supabase. Referencia de la API: `docs/API.md`. Decisiones que llenan huecos del contrato: `CONTRATO.md` §19.
+
 | # | Paso | Listo cuando |
 |---|---|---|
 | 0 | Reescribir `CONVENCIONES.md` todo en español y con Supabase; `package.json`, Prettier, ESLint, docker-compose, `.env.example`, config, `app.js`/`servidor.js`, `ErrorApp` + `manejadorErrores`, `GET /api/v1/salud`. Primer commit y push | `npm run dev` responde; `main` en GitHub |
@@ -130,7 +132,7 @@ Fuera de fase 1: `/sync/recibos`, `/me/frecuentes`, QR, push.
 
 ---
 
-## Puntos del contrato a confirmar con el equipo (no bloquean)
+## Puntos del contrato a confirmar con el equipo (resueltos, ver CONTRATO.md §19)
 
 1. **Movimiento `cobro`**: el cobro sale de lo reservado, no del disponible, así que su `monto` sería 0 (propuesta: `monto = 0`, con `cobroId`; la diferencia va en `liberacion`).
 2. **Exonerado**: `tarifaReferencia = 0` hace que `viajesEstimados` divida entre cero (propuesta: `null` = ilimitado).
