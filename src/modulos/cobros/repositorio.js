@@ -110,6 +110,15 @@ export async function insertar(bd, c) {
   return rows[0].id;
 }
 
+/** Agrega quién confirmó el cobro ('recolector' o 'pasajero'), si no estaba. */
+export async function agregarConfirmacion(bd, cobroId, origen) {
+  await bd.query(
+    `UPDATE pasaje.cobros SET confirmado_por = array_append(confirmado_por, $2)
+     WHERE id = $1 AND NOT ($2 = ANY (confirmado_por))`,
+    [cobroId, origen],
+  );
+}
+
 export async function anular(bd, cobroId) {
   await bd.query('UPDATE pasaje.cobros SET anulado_en = now() WHERE id = $1', [cobroId]);
 }

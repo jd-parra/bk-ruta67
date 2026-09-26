@@ -14,6 +14,11 @@ export async function buscarPorRecolector(bd, recolectorId) {
   return rows[0] ?? null;
 }
 
+export async function buscarPorCodigo(bd, codigo) {
+  const { rows } = await bd.query(`SELECT ${COLUMNAS} ${DESDE} WHERE un.codigo = $1`, [codigo]);
+  return rows[0] ?? null;
+}
+
 export async function buscarPorId(bd, id) {
   const { rows } = await bd.query(`SELECT ${COLUMNAS} ${DESDE} WHERE un.id = $1`, [id]);
   return rows[0] ?? null;

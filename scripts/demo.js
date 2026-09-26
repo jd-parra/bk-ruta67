@@ -4,7 +4,15 @@
 // Deja datos de prueba (una recarga, un boleto y un cobro anulado) en la BD a la que apunte.
 import { parseArgs } from 'node:util';
 import { io } from 'socket.io-client';
-import { validarBoletoParaCobro } from '../shared/boleto.js';
+import { decodificarBoleto, validarBoletoParaCobro } from '../shared/boleto.js';
+import {
+  comandoPedirBoleto,
+  comandoRecibo,
+  comandoSelect,
+  crearTarjetaHCE,
+  esOk,
+  leerRespuestaPedirBoleto,
+} from '../shared/protocolo.js';
 import { desdeBase64url } from '../shared/bytes.js';
 import { calcularMonto } from '../shared/tarifa.js';
 import { formatearBs } from '../src/utils/dinero.js';
@@ -66,33 +74,67 @@ async function main() {
   paso('Luis abre "Cobrar": descarga el paquete');
   const paquete = await llamar('GET', '/recolector/paquete', { token: luis });
   ok(`unidad ${paquete.unidad.codigo}, línea "${paquete.linea.nombre}"`);
-  const tramo = paquete.linea.tramos[0];
 
-  paso('Toque NFC: el teléfono de Luis valida el boleto SIN internet (shared/)');
-  const ocurridoEn = new Date().toISOString();
+  paso('Ana abre "Pagar" y acerca el teléfono: toque NFC (protocolo del §9, shared/)');
+  const recibosDeAna = [];
+  const tarjetaAna = crearTarjetaHCE({
+    pagarAbierta: () => true,
+    siguienteBoleto: () => ({ raw: boleto.raw, tramoSugerido: 0 }),
+    alRecibo: (recibo) => recibosDeAna.push(recibo),
+  });
+  if (!esOk(tarjetaAna.procesar(comandoSelect()))) throw new Error('SELECT falló');
+  const leido = leerRespuestaPedirBoleto(
+    tarjetaAna.procesar(
+      comandoPedirBoleto({
+        lineaCodigo: paquete.linea.codigo,
+        unidadCodigo: paquete.unidad.codigo,
+      }),
+    ),
+  );
+  if (!leido.ok) throw new Error(`PEDIR_BOLETO falló: ${leido.motivo}`);
+  ok('SELECT → 90 00 · PEDIR_BOLETO → boleto de 106 bytes');
+
+  // Sin tramo sugerido: el recolector usa el más frecuente de la línea (el primero del paquete).
+  const tramo =
+    paquete.linea.tramos.find((t) => t.codigo === leido.tramoSugerido) ?? paquete.linea.tramos[0];
+  const ocurridoEn = new Date(Math.floor(Date.now() / 1000) * 1000).toISOString();
+  const revocados = new Set(paquete.revocados);
+  // La categoría viene dentro del boleto: se lee primero para calcular el monto, y luego
+  // se valida con ese monto (las 4 reglas del §8.3, en orden).
+  const { categoria } = decodificarBoleto(leido.boleto);
   const monto = calcularMonto({
     linea: paquete.linea,
     tramo,
     tabulador: paquete.tabulador,
-    categoria: 'estudiante',
+    categoria,
     ocurridoEn,
     feriados: paquete.feriados,
   });
-  const revocados = new Set(paquete.revocados);
-  const validacion = validarBoletoParaCobro(boleto.raw, {
+  const validacion = validarBoletoParaCobro(leido.boleto, {
     llavePublica: desdeBase64url(paquete.llavePublica),
     ahoraSeg: Math.floor(Date.now() / 1000),
     monto,
     yaUsado: (bid) => revocados.has(bid),
   });
   if (!validacion.ok) throw new Error(`el recolector rechazó el boleto: ${validacion.codigo}`);
-  ok(`firma válida · ${validacion.boleto.categoria} · "${tramo.nombre}" · ${formatearBs(monto)}`);
+  ok(
+    `Luis valida SIN internet: firma válida · ${validacion.boleto.categoria} · "${tramo.nombre}" · ${formatearBs(monto)}`,
+  );
+
+  const reciboApdu = comandoRecibo({
+    bid: validacion.boleto.bid,
+    tramoCodigo: tramo.codigo,
+    monto,
+    ocurridoEn,
+  });
+  if (!esOk(tarjetaAna.procesar(reciboApdu))) throw new Error('RECIBO falló');
+  ok(`RECIBO → 90 00 · el teléfono de Ana guardó ${recibosDeAna.length} recibo`);
 
   paso('Luis sincroniza el cobro');
   const { resultados } = await llamar('POST', '/sync/cobros', {
     token: luis,
     cuerpo: {
-      cobros: [{ raw: boleto.raw, tramoCodigo: tramo.codigo, monto, metodo: 'nfc', ocurridoEn }],
+      cobros: [{ raw: leido.raw, tramoCodigo: tramo.codigo, monto, metodo: 'nfc', ocurridoEn }],
     },
   });
   const [resultado] = resultados;
@@ -104,6 +146,15 @@ async function main() {
     new Promise((_, rechazar) => setTimeout(() => rechazar(new Error('no llegó el evento')), 5000)),
   ]);
   ok(`cobro:confirmado → saldo disponible ${formatearBs(evento.billetera.saldoDisponible)}`);
+
+  paso('Ana sube su recibo (fase 2): confirma el mismo cobro');
+  const sync = await llamar('POST', '/sync/recibos', {
+    token: ana,
+    cuerpo: { recibos: recibosDeAna },
+  });
+  ok(
+    `estado: ${sync.resultados[0].estado} · confirmado por ${sync.resultados[0].cobro.confirmadoPor.join(' y ')}`,
+  );
 
   paso('Luis se equivocó de tramo: "Corregir" dentro de 2 minutos');
   await llamar('DELETE', `/sync/cobros/${boleto.bid}`, { token: luis });

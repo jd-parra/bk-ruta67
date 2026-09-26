@@ -91,6 +91,27 @@ async function main() {
   guardar('billetera', await llamar('get', '/billetera', { quien: 'ana' }));
   guardar('movimientos', await llamar('get', '/movimientos?limite=5', { quien: 'ana' }));
 
+  const [, , b3] = emision.boletos;
+  const segundoExacto = new Date(Math.floor(Date.now() / 1000) * 1000).toISOString();
+  guardar(
+    'sync-recibos',
+    await llamar('post', '/sync/recibos', {
+      quien: 'ana',
+      cuerpo: {
+        recibos: [
+          {
+            bid: b3.bid,
+            lineaCodigo: 1,
+            unidadCodigo: 101,
+            tramoCodigo: 1,
+            monto: 10000,
+            ocurridoEn: segundoExacto,
+          },
+        ],
+      },
+    }),
+  );
+  guardar('me-frecuentes', await llamar('get', '/me/frecuentes', { quien: 'ana' }));
   guardar('sync-cobros-conflicto', await cobrar('marta', b1, 1));
   guardar('central-resumen', await llamar('get', '/central/resumen', { quien: 'central' }));
   guardar('central-conflictos', await llamar('get', '/central/conflictos', { quien: 'central' }));

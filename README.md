@@ -26,6 +26,7 @@ Copia la carpeta `shared/` tal cual a la app. Solo depende de `tweetnacl` y no u
 | `boleto.js` | `firmarBoleto`, `decodificarBoleto`, `verificarFirma`, `validarBoletoParaCobro` (reglas del §8.3 en orden), `rawABoleto` / `boletoARaw` |
 | `tarifa.js` | `calcularMonto` (domingo/feriado en hora de Venezuela), `tarifaMaximaRed`, `tabuladorVigente` |
 | `bytes.js` | base64url, hex y UUID ↔ bytes sin `Buffer` |
+| `protocolo.js` | **NFC del §9**: `comandoSelect`, `comandoPedirBoleto`, `leerRespuestaPedirBoleto`, `comandoRecibo` (modo recolector) y `crearTarjetaHCE` (modo pasajero, devuelve el `ReciboLocal` listo para `/sync/recibos`). QR: `codificarQR` / `decodificarQR` |
 | `codigos.js` | códigos de error, categorías, constantes del boleto y NFC |
 | `vectores.json` | casos fijos: si tu código da otro resultado, está mal |
 | `dev-keys.json` | llave de desarrollo (**solo pruebas**) |

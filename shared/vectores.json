@@ -16,22 +16,42 @@
   "tabuladores": {
     "semilla": {
       "vigenteDesde": "2026-09-01T04:00:00Z",
-      "descuentos": { "general": 0, "estudiante": 0.5, "exonerado": 1 },
+      "descuentos": {
+        "general": 0,
+        "estudiante": 0.5,
+        "exonerado": 1
+      },
       "recargoDomingoFeriado": 0,
       "urbanoMinimo": 20000,
       "suburbano": [
-        { "hastaKm": 10, "monto": 28000 },
-        { "hastaKm": 9999, "monto": 99000 }
+        {
+          "hastaKm": 10,
+          "monto": 28000
+        },
+        {
+          "hastaKm": 9999,
+          "monto": 99000
+        }
       ]
     },
     "conRecargo": {
       "vigenteDesde": "2026-10-01T04:00:00Z",
-      "descuentos": { "general": 0, "estudiante": 0.5, "exonerado": 1 },
+      "descuentos": {
+        "general": 0,
+        "estudiante": 0.5,
+        "exonerado": 1
+      },
       "recargoDomingoFeriado": 0.2,
       "urbanoMinimo": 20000,
       "suburbano": [
-        { "hastaKm": 10, "monto": 28000 },
-        { "hastaKm": 9999, "monto": 99000 }
+        {
+          "hastaKm": 10,
+          "monto": 28000
+        },
+        {
+          "hastaKm": 9999,
+          "monto": 99000
+        }
       ]
     }
   },
@@ -41,7 +61,9 @@
       "caso": "urbana, general, lunes",
       "tabulador": "semilla",
       "linea": "urbana",
-      "tramo": { "km": 5 },
+      "tramo": {
+        "km": 5
+      },
       "categoria": "general",
       "ocurridoEn": "2026-09-28T14:00:00Z",
       "monto": 20000
@@ -50,7 +72,9 @@
       "caso": "urbana, estudiante",
       "tabulador": "semilla",
       "linea": "urbana",
-      "tramo": { "km": 5 },
+      "tramo": {
+        "km": 5
+      },
       "categoria": "estudiante",
       "ocurridoEn": "2026-09-28T14:00:00Z",
       "monto": 10000
@@ -59,7 +83,9 @@
       "caso": "urbana, exonerado",
       "tabulador": "semilla",
       "linea": "urbana",
-      "tramo": { "km": 5 },
+      "tramo": {
+        "km": 5
+      },
       "categoria": "exonerado",
       "ocurridoEn": "2026-09-28T14:00:00Z",
       "monto": 0
@@ -68,7 +94,9 @@
       "caso": "suburbana 9 km, general",
       "tabulador": "semilla",
       "linea": "suburbana",
-      "tramo": { "km": 9 },
+      "tramo": {
+        "km": 9
+      },
       "categoria": "general",
       "ocurridoEn": "2026-09-28T14:00:00Z",
       "monto": 28000
@@ -77,7 +105,9 @@
       "caso": "suburbana 10 km (borde), general",
       "tabulador": "semilla",
       "linea": "suburbana",
-      "tramo": { "km": 10 },
+      "tramo": {
+        "km": 10
+      },
       "categoria": "general",
       "ocurridoEn": "2026-09-28T14:00:00Z",
       "monto": 28000
@@ -86,7 +116,9 @@
       "caso": "suburbana 25 km, general",
       "tabulador": "semilla",
       "linea": "suburbana",
-      "tramo": { "km": 25 },
+      "tramo": {
+        "km": 25
+      },
       "categoria": "general",
       "ocurridoEn": "2026-09-28T14:00:00Z",
       "monto": 99000
@@ -95,7 +127,9 @@
       "caso": "suburbana 9 km, estudiante",
       "tabulador": "semilla",
       "linea": "suburbana",
-      "tramo": { "km": 9 },
+      "tramo": {
+        "km": 9
+      },
       "categoria": "estudiante",
       "ocurridoEn": "2026-09-28T14:00:00Z",
       "monto": 14000
@@ -104,7 +138,10 @@
       "caso": "tarifa manual gana, estudiante",
       "tabulador": "semilla",
       "linea": "urbana",
-      "tramo": { "km": 5, "tarifaManual": 15000 },
+      "tramo": {
+        "km": 5,
+        "tarifaManual": 15000
+      },
       "categoria": "estudiante",
       "ocurridoEn": "2026-09-28T14:00:00Z",
       "monto": 7500
@@ -113,7 +150,10 @@
       "caso": "redondeo: 12345 × 0.5 = 6172.5 → 6173",
       "tabulador": "semilla",
       "linea": "urbana",
-      "tramo": { "km": 5, "tarifaManual": 12345 },
+      "tramo": {
+        "km": 5,
+        "tarifaManual": 12345
+      },
       "categoria": "estudiante",
       "ocurridoEn": "2026-09-28T14:00:00Z",
       "monto": 6173
@@ -122,7 +162,9 @@
       "caso": "domingo 11:00 VE, recargo 20 %",
       "tabulador": "conRecargo",
       "linea": "urbana",
-      "tramo": { "km": 5 },
+      "tramo": {
+        "km": 5
+      },
       "categoria": "general",
       "ocurridoEn": "2026-09-27T15:00:00Z",
       "monto": 24000
@@ -131,7 +173,9 @@
       "caso": "domingo 21:00 VE = lunes 01:00 UTC → SÍ recargo",
       "tabulador": "conRecargo",
       "linea": "urbana",
-      "tramo": { "km": 5 },
+      "tramo": {
+        "km": 5
+      },
       "categoria": "general",
       "ocurridoEn": "2026-09-28T01:00:00Z",
       "monto": 24000
@@ -140,7 +184,9 @@
       "caso": "sábado 22:00 VE = domingo 02:00 UTC → NO recargo",
       "tabulador": "conRecargo",
       "linea": "urbana",
-      "tramo": { "km": 5 },
+      "tramo": {
+        "km": 5
+      },
       "categoria": "general",
       "ocurridoEn": "2026-09-27T02:00:00Z",
       "monto": 20000
@@ -149,7 +195,9 @@
       "caso": "lunes 01:00 VE → NO recargo",
       "tabulador": "conRecargo",
       "linea": "urbana",
-      "tramo": { "km": 5 },
+      "tramo": {
+        "km": 5
+      },
       "categoria": "general",
       "ocurridoEn": "2026-09-28T05:00:00Z",
       "monto": 20000
@@ -158,7 +206,9 @@
       "caso": "feriado 12 de octubre (lunes)",
       "tabulador": "conRecargo",
       "linea": "urbana",
-      "tramo": { "km": 5 },
+      "tramo": {
+        "km": 5
+      },
       "categoria": "general",
       "ocurridoEn": "2026-10-12T14:00:00Z",
       "monto": 24000
@@ -167,10 +217,36 @@
       "caso": "suburbana 9 km, estudiante, domingo con recargo",
       "tabulador": "conRecargo",
       "linea": "suburbana",
-      "tramo": { "km": 9 },
+      "tramo": {
+        "km": 9
+      },
       "categoria": "estudiante",
       "ocurridoEn": "2026-09-27T15:00:00Z",
       "monto": 16800
     }
-  ]
+  ],
+  "nfc": {
+    "_nota": "Bytes armados a mano desde el §9 del contrato (hex en mayúsculas).",
+    "select": "00A4040007F050415345000200",
+    "pedirBoleto": {
+      "datos": {
+        "lineaCodigo": 1,
+        "unidadCodigo": 101
+      },
+      "hex": "801000000400010065"
+    },
+    "respuestaPedirBoleto": {
+      "tramoSugerido": 1,
+      "hex": "01111111112222433384445555555555550000000000004000800000000000000101000036B06ABEF400A666F0ABB532E27140143349353365182F0DB3CD58D6EE6767271BA8FA08BD1666D260CB397A7AE7318802089602D620A516F888311C3FD0EE22399272E6960900019000"
+    },
+    "recibo": {
+      "datos": {
+        "bid": "11111111-2222-4333-8444-555555555555",
+        "tramoCodigo": 2,
+        "monto": 10000,
+        "ocurridoEn": "2026-10-01T00:00:00.000Z"
+      },
+      "hex": "802000001A111111112222433384445555555555550002000027106ABDA280"
+    }
+  }
 }

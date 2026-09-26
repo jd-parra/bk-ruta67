@@ -34,9 +34,12 @@ Errores, siempre: `{ "error": { "codigo", "mensaje", "detalle?" } }`. `mensaje` 
 | POST | `/boletos` | `{ cantidad? }` (1–5, por defecto 5) | `201 { boletos: BoletoEmitido[], billetera }` | `boletos-post` |
 | GET | `/boletos` | — | `BoletoEmitido[]` activos | `boletos-get` |
 | POST | `/boletos/revocar` | — | `{ revocados, billetera }` | — |
+| POST | `/sync/recibos` | `{ recibos: ReciboLocal[] }` (1–500) | `{ resultados }`, igual que `/sync/cobros` | `sync-recibos` |
+| GET | `/me/frecuentes` | — | `{ lineaCodigo, tramoCodigo, veces }[]` | `me-frecuentes` |
 
 - `POST /boletos` completa hasta 5 activos según alcance el saldo. Si ya tiene 5, responde `boletos: []`. Si no alcanza ni para uno: `422 SALDO_INSUFICIENTE`.
 - `viajesEstimados` es `null` para exonerados (viajes ilimitados).
+- `/sync/recibos` (fase 2): el pasajero sube los recibos del paso 3 NFC. Si su recibo llega antes que el cobro del recolector, el cobro se crea con el recibo; el que llega segundo solo lo confirma (`confirmadoPor` pasa a tener los dos).
 
 ## Recolector
 
@@ -53,8 +56,9 @@ Cada resultado de `/sync/cobros`:
 | `estado` | Cuándo | Trae |
 |---|---|---|
 | `ok` | cobrado | `cobro` |
-| `duplicado` | el mismo cobro reenviado (mismo recolector, mismo segundo) | `cobro` |
-| `conflicto` | el boleto ya se cobró en otro lado: **cuenta del pasajero bloqueada** | `codigo: BOLETO_USADO`, `cobro` original |
+| `ok` | el otro teléfono ya lo había reportado: se confirma, sin cobrar dos veces | `cobro` |
+| `duplicado` | el mismo teléfono reenvió el mismo viaje (misma unidad, mismo segundo) | `cobro` |
+| `conflicto` | el boleto ya se usó en otra unidad u otro momento: **cuenta del pasajero bloqueada** | `codigo: BOLETO_USADO`, `cobro` original |
 | `rechazado` | falló una regla del §8.3 | `codigo`: `BOLETO_INVALIDO`, `BOLETO_VENCIDO`, `BOLETO_USADO`, `BOLETO_INSUFICIENTE`, `TRAMO_INVALIDO` |
 
 El backend recalcula el monto con el tabulador vigente en `ocurridoEn`; el `monto` del recolector solo queda como referencia.

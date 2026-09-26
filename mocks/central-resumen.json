@@ -1,15 +1,15 @@
 {
-  "desde": "2026-09-25T04:00:00.000Z",
-  "cobros": 2,
-  "recaudado": 20000,
+  "desde": "2026-09-26T04:00:00.000Z",
+  "cobros": 3,
+  "recaudado": 30000,
   "pasajeros": 1,
   "recargado": 100000,
   "porLinea": [
     {
       "lineaCodigo": 1,
       "lineaNombre": "Chorros de Milla",
-      "cobros": 2,
-      "recaudado": 20000
+      "cobros": 3,
+      "recaudado": 30000
     },
     {
       "lineaCodigo": 2,
@@ -30,8 +30,8 @@
       "recaudado": 0
     },
     "estudiante": {
-      "cobros": 2,
-      "recaudado": 20000
+      "cobros": 3,
+      "recaudado": 30000
     },
     "exonerado": {
       "cobros": 0,

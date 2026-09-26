@@ -11,6 +11,7 @@ import { rutasLineas } from './modulos/lineas/rutas.js';
 import { rutasPublico } from './modulos/publico/rutas.js';
 import { rutasRecolector } from './modulos/recolector/rutas.js';
 import { rutasSalud } from './modulos/salud/rutas.js';
+import { rutasSincronizacionPasajero } from './modulos/sincronizacion/rutas.js';
 import { rutasUbicaciones } from './modulos/ubicaciones/rutas.js';
 
 const PREFIJO_API = '/api/v1';
@@ -49,6 +50,7 @@ export function crearApp() {
     rutasBoletos,
     rutasLineas,
     rutasRecolector,
+    rutasSincronizacionPasajero,
     rutasUbicaciones,
     rutasCentral,
   ]) {

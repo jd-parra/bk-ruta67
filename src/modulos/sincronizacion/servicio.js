@@ -2,33 +2,20 @@
 // Cada cobro se procesa en su propia transacción: uno malo no frena a los demás.
 import { decodificarBoleto, rawABoleto, verificarFirma } from '../../../shared/boleto.js';
 import { BOLETO, CODIGOS_ERROR, LIMITES } from '../../../shared/codigos.js';
-import { calcularMonto } from '../../../shared/tarifa.js';
-import { conTransaccion, pool } from '../../bd/pool.js';
-import { EVENTOS, SALAS } from '../../tiempoReal/eventos.js';
-import { emitir } from '../../tiempoReal/emisor.js';
+import { conTransaccion } from '../../bd/pool.js';
 import { ErrorApp } from '../../utils/ErrorApp.js';
 import { aSegundos } from '../../utils/fechas.js';
 import { obtenerLlaves } from '../../utils/llaves.js';
 import { moverSaldo, TIPOS_MOVIMIENTO } from '../billetera/libro.js';
-import { crearAviso } from '../billetera/repositorio.js';
-import { obtenerBilleteraPorId } from '../billetera/servicio.js';
 import * as boletos from '../boletos/repositorio.js';
-import { avisarRecolectores, revocarTodos } from '../boletos/servicio.js';
 import * as cobros from '../cobros/repositorio.js';
-import { serializarCobro } from '../cobros/serializadores.js';
 import { lineaParaCobrar } from '../lineas/servicio.js';
 import { unidadDelRecolector } from '../recolector/servicio.js';
-import { feriadosRecientes, vigenteEn, vigenteYProximo } from '../tabuladores/servicio.js';
-
-const ESTADOS = Object.freeze({
-  OK: 'ok',
-  DUPLICADO: 'duplicado',
-  CONFLICTO: 'conflicto',
-  RECHAZADO: 'rechazado',
-});
+import { feriadosRecientes, vigenteYProximo } from '../tabuladores/servicio.js';
+import { completarDespuesDelCommit, rechazado, registrarUso } from './nucleo.js';
 
 /**
- * Sincroniza cobros hechos por el recolector (fase 1: uno por llamada, justo después del toque).
+ * Sincroniza cobros hechos por el recolector (fase 1: uno por llamada; fase 2: la cola completa).
  * Idempotente por `bid`.
  * @param {object} recolector fila de BD
  * @param {object[]} cobrosLocales CobroLocal[]
@@ -53,7 +40,7 @@ async function armarContexto(recolector) {
   return { recolector, unidad, linea, tabuladores: todos, feriados, llaves: obtenerLlaves() };
 }
 
-/** Aplica las reglas en orden; la primera que falla define el resultado. */
+/** Lo que se puede revisar sin tocar la BD va primero (firma, vencimiento, tramo). */
 async function procesarCobro(contexto, local) {
   const boleto = leerBoleto(local.raw, contexto.llaves.publica);
   if (!boleto) return rechazado(null, CODIGOS_ERROR.BOLETO_INVALIDO);
@@ -62,24 +49,23 @@ async function procesarCobro(contexto, local) {
   if (boleto.expira <= aSegundos(local.ocurridoEn) - BOLETO.TOLERANCIA_RELOJ_SEG) {
     return rechazado(bid, CODIGOS_ERROR.BOLETO_VENCIDO);
   }
-
   const tramo = contexto.linea.tramos.find((t) => t.codigo === local.tramoCodigo);
   if (!tramo) return rechazado(bid, CODIGOS_ERROR.TRAMO_INVALIDO);
 
-  const tabulador = vigenteEn(contexto.tabuladores, local.ocurridoEn);
-  if (!tabulador) return rechazado(bid, CODIGOS_ERROR.VALIDACION);
-
-  const monto = calcularMonto({
-    linea: contexto.linea,
-    tramo,
-    tabulador,
-    categoria: boleto.categoria,
-    ocurridoEn: local.ocurridoEn,
-    feriados: contexto.feriados,
-  });
-
   const resultado = await conTransaccion((cliente) =>
-    registrarCobro(cliente, { contexto, local, boleto, tramo, tabulador, monto }),
+    registrarUso(cliente, {
+      bid,
+      origen: 'recolector',
+      recolectorId: contexto.recolector.id,
+      unidad: contexto.unidad,
+      linea: contexto.linea,
+      tramo,
+      tabuladores: contexto.tabuladores,
+      feriados: contexto.feriados,
+      montoReportado: local.monto,
+      metodo: local.metodo,
+      ocurridoEn: local.ocurridoEn,
+    }),
   );
   return completarDespuesDelCommit(resultado);
 }
@@ -93,114 +79,6 @@ function leerBoleto(raw, llavePublica) {
   }
 }
 
-async function registrarCobro(cliente, { contexto, local, boleto, tramo, tabulador, monto }) {
-  const { bid } = boleto;
-  const { boleto: fila, cobro: existente } = await cobros.bloquearBoletoConCobro(cliente, bid);
-  if (!fila) return rechazado(bid, CODIGOS_ERROR.BOLETO_INVALIDO); // firmado pero no emitido aquí
-  if (existente) return resolverRepetido(cliente, { contexto, local, fila, existente, monto });
-
-  if (fila.estado === 'revocado' || fila.estado === 'usado') {
-    return rechazado(bid, CODIGOS_ERROR.BOLETO_USADO);
-  }
-  if (fila.estado === 'vencido') return rechazado(bid, CODIGOS_ERROR.BOLETO_VENCIDO);
-  if (monto > fila.monto_reservado) return rechazado(bid, CODIGOS_ERROR.BOLETO_INSUFICIENTE);
-
-  const cobroId = await cobros.insertar(cliente, {
-    bid,
-    pasajeroId: fila.usuario_id,
-    recolectorId: contexto.recolector.id,
-    unidadId: contexto.unidad.id,
-    tramoId: tramo.id,
-    tabuladorId: tabulador.id,
-    lineaCodigo: contexto.linea.codigo,
-    tramoCodigo: tramo.codigo,
-    tramoNombre: tramo.nombre,
-    unidadCodigo: contexto.unidad.codigo,
-    categoriaAplicada: boleto.categoria,
-    monto,
-    montoRecolector: local.monto,
-    metodo: local.metodo,
-    ocurridoEn: local.ocurridoEn,
-    confirmadoPor: ['recolector'],
-  });
-  await cobrarDeLaReserva(cliente, fila, monto, cobroId);
-  return { bid, estado: ESTADOS.OK, cobroId, pasajeroId: fila.usuario_id };
-}
-
-/** El cobro sale de lo reservado; la diferencia vuelve al disponible (§8.2). */
-async function cobrarDeLaReserva(cliente, boleto, monto, cobroId) {
-  const reservado = boleto.monto_reservado;
-  const cambios = [{ tipo: TIPOS_MOVIMIENTO.COBRO, reservado: -reservado, cobroId }];
-  if (reservado > monto) {
-    cambios.push({ tipo: TIPOS_MOVIMIENTO.LIBERACION, disponible: reservado - monto, cobroId });
-  }
-  await moverSaldo(cliente, boleto.usuario_id, cambios);
-}
-
-/**
- * Mismo bid ya cobrado. Si es el mismo cobro reenviado (mismo recolector, mismo segundo) es un
- * duplicado inofensivo. Si no, es doble gasto: conflicto y cuenta bloqueada (§8.4).
- */
-async function resolverRepetido(cliente, { contexto, local, fila, existente, monto }) {
-  const mismoCobro =
-    existente.recolector_id === contexto.recolector.id &&
-    aSegundos(existente.ocurrido_en) === aSegundos(local.ocurridoEn);
-  if (mismoCobro) {
-    return { bid: fila.bid, estado: ESTADOS.DUPLICADO, cobroId: existente.id };
-  }
-
-  await cobros.insertarConflicto(cliente, {
-    bid: fila.bid,
-    cobroOriginalId: existente.id,
-    pasajeroId: fila.usuario_id,
-    recolectorId: contexto.recolector.id,
-    unidadId: contexto.unidad.id,
-    monto,
-    ocurridoEn: local.ocurridoEn,
-  });
-  await bloquearPorDobleGasto(cliente, fila.usuario_id);
-  return {
-    bid: fila.bid,
-    estado: ESTADOS.CONFLICTO,
-    codigo: CODIGOS_ERROR.BOLETO_USADO,
-    cobroId: existente.id,
-    avisarRecolectores: true,
-  };
-}
-
-async function bloquearPorDobleGasto(cliente, usuarioId) {
-  await cliente.query('UPDATE pasaje.usuarios SET bloqueado = true WHERE id = $1', [usuarioId]);
-  await revocarTodos(cliente, usuarioId);
-  await crearAviso(cliente, {
-    usuarioId,
-    tipo: 'CUENTA_BLOQUEADA',
-    mensaje:
-      'Detectamos un boleto usado dos veces. Tu cuenta está bloqueada: comunícate con la central',
-  });
-}
-
-/** Eventos y datos que solo se deben mandar con la transacción ya confirmada. */
-async function completarDespuesDelCommit(resultado) {
-  if (resultado.avisarRecolectores) avisarRecolectores();
-  if (!resultado.cobroId) return resultado;
-
-  const esNuevo = resultado.estado === ESTADOS.OK;
-  const [detalle, billetera] = await Promise.all([
-    cobros.buscarDetalle(pool, resultado.cobroId),
-    esNuevo ? obtenerBilleteraPorId(resultado.pasajeroId) : null,
-  ]);
-  const cobro = serializarCobro(detalle);
-  if (esNuevo) {
-    emitir(SALAS.usuario(resultado.pasajeroId), EVENTOS.COBRO_CONFIRMADO, { cobro, billetera });
-  }
-  const { bid, estado, codigo } = resultado;
-  return codigo ? { bid, estado, codigo, cobro } : { bid, estado, cobro };
-}
-
-function rechazado(bid, codigo) {
-  return { bid, estado: ESTADOS.RECHAZADO, codigo };
-}
-
 /**
  * Anula un cobro propio de hace menos de 2 minutos (botón "Corregir").
  * El boleto vuelve a quedar activo con su reserva completa, listo para cobrarse con otro tramo.
@@ -210,8 +88,7 @@ function rechazado(bid, codigo) {
  */
 export async function anularCobro(recolector, bid) {
   await conTransaccion(async (cliente) => {
-    const boleto = await boletos.bloquear(cliente, bid);
-    const cobro = boleto && (await cobros.buscarVigentePorBid(cliente, bid));
+    const { boleto, cobro } = await cobros.bloquearBoletoConCobro(cliente, bid);
     if (!cobro || cobro.recolector_id !== recolector.id) {
       throw new ErrorApp(CODIGOS_ERROR.NO_ENCONTRADO, 'No tienes un cobro con ese boleto');
     }
