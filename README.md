@@ -1,6 +1,6 @@
 # Pasaje — backend
 
-Backend del MVP Pasaje (Mérida). Qué expone la API: [`CONTRATO.md`](CONTRATO.md) y la referencia rápida [`docs/API.md`](docs/API.md) (con ejemplos en `mocks/`). Cómo se escribe: [`CONVENCIONES.md`](CONVENCIONES.md). Plan: [`docs/PLAN_FASE1.md`](docs/PLAN_FASE1.md).
+Backend del MVP Pasaje (Mérida). Qué expone la API: [`CONTRATO.md`](CONTRATO.md) y la referencia rápida [`docs/API.md`](docs/API.md) (con ejemplos en `mocks/`). Cómo se escribe: [`CONVENCIONES.md`](CONVENCIONES.md). Plan: [`docs/PLAN_FASE1.md`](docs/PLAN_FASE1.md). Cómo probarlo: [`docs/GUIA_PRUEBAS.md`](docs/GUIA_PRUEBAS.md).
 
 ## Arrancar
 
