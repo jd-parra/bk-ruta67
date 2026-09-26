@@ -14,6 +14,12 @@ test('GET /api/v1/salud responde ok y la BD contesta', async () => {
   assert.deepEqual(respuesta.body, { ok: true, bd: 'ok' });
 });
 
+test('GET /api/v1 identifica la API', async () => {
+  const respuesta = await request(app).get('/api/v1');
+  assert.equal(respuesta.status, 200);
+  assert.equal(respuesta.body.api, 'Pasaje');
+});
+
 test('ruta desconocida responde con el formato de error del contrato', async () => {
   const respuesta = await request(app).get('/api/v1/no-existe');
   assert.equal(respuesta.status, 404);
