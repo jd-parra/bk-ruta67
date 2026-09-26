@@ -107,6 +107,8 @@ Stack: Node ≥ 20 ESM, Express 5, Socket.IO 4, `pg`, `node-pg-migrate`, `zod`, 
 
 ## Pasos (en orden; un PR por paso)
 
+> ✅ **Después (26/09/2026):** latencia 4–13× menor contra Supabase; fase 2 del backend (`/sync/recibos`, `/me/frecuentes`, `shared/protocolo.js` con NFC y QR); endurecimiento (límite de intentos, CORS configurable, helmet, arranque estricto en producción, respaldos).
+>
 > ✅ **Fase 1 completa** (26/09/2026): pasos 0 a 13 implementados, 139 pruebas y `npm run demo` de punta a punta contra Supabase. Referencia de la API: `docs/API.md`. Decisiones que llenan huecos del contrato: `CONTRATO.md` §19.
 
 | # | Paso | Listo cuando |

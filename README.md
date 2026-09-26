@@ -13,6 +13,7 @@ npm run dev             # http://localhost:3000/api/v1/salud
 npm test                # siempre usa la BD local de pruebas
 npm run demo            # flujo completo contra el backend corriendo (login → boletos → cobro → corrección)
 npm run mocks           # regenera mocks/ con respuestas reales (BD local de pruebas)
+npm run bd:respaldo     # respaldo de la BD de .env en respaldos/ (hazlo antes de cambios grandes)
 ```
 
 Para usar Supabase, pon en `.env` la URL del **Transaction pooler** (puerto 6543) en `DATABASE_URL` y `PGSSL=true`.

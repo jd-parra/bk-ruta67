@@ -4,7 +4,7 @@ Tres niveles, de más rápido a más completo:
 
 | Nivel | Qué prueba | Tiempo |
 |---|---|---|
-| [1. Automáticas](#1-pruebas-automáticas) | 139 pruebas de todo el backend | 1 min |
+| [1. Automáticas](#1-pruebas-automáticas) | todas las pruebas del backend | 1 min |
 | [2. Demo](#2-demo-de-punta-a-punta) | el flujo completo contra tu backend y Supabase | 1 min |
 | [3. A mano](#3-prueba-a-mano-paso-a-paso) | cada endpoint con `curl`, viendo los números | 20 min |
 
@@ -22,7 +22,7 @@ npm run bd:levantar      # solo la primera vez o si reiniciaste la laptop
 npm test
 ```
 
-✅ Esperado al final: `# pass 139` y `# fail 0`.
+✅ Esperado al final: `# fail 0`.
 
 ---
 
@@ -34,7 +34,7 @@ Con el backend corriendo (`npm run dev` en otra terminal):
 npm run demo
 ```
 
-✅ Esperado: 9 pasos con ✓ y `✅ Demo completa`. Simula las dos apps: Ana recarga y pide un boleto, Luis valida el boleto **sin internet** con `shared/`, cobra, Ana recibe el cobro en vivo y Luis lo corrige.
+✅ Esperado: todos los pasos con ✓ y `✅ Demo completa`. Simula las dos apps: Ana recarga y pide un boleto, el toque NFC usa el protocolo real del §9 (`shared/protocolo.js`), Luis valida el boleto **sin internet**, cobra, Ana recibe el cobro en vivo y sube su recibo, y Luis corrige el cobro.
 
 ---
 
@@ -276,7 +276,33 @@ CARLOS=$(login 04147770001); get $CARLOS /recolector/paquete | jq '.unidad.codig
 
 ✅ Esperado: unidad `201` en `"San Benito"` con Carlos, y Carlos ya puede cobrar (`201`, `"San Benito"`).
 
-### 3.13 Volver a dejar todo limpio
+### 3.13 Fase 2: recibos del pasajero y rutas frecuentes
+
+El teléfono del pasajero guarda un recibo en cada toque NFC y lo sube cuando tiene datos. Si llega antes que el cobro del recolector, **el cobro se crea con el recibo**, y el que llega segundo solo lo confirma.
+
+```bash
+RB=$(get $ROSA /boletos | jq -r '.[0].bid'); RR=$(get $ROSA /boletos | jq -r '.[0].raw')
+T=$(date -u +%Y-%m-%dT%H:%M:%S.000Z)
+post $ROSA /sync/recibos "{\"recibos\":[{\"bid\":\"$RB\",\"lineaCodigo\":1,\"unidadCodigo\":101,\"tramoCodigo\":1,\"monto\":0,\"ocurridoEn\":\"$T\"}]}" | jq -c '.resultados[0] | {estado, confirmadoPor: .cobro.confirmadoPor}'
+post $LUIS /sync/cobros "{\"cobros\":[{\"raw\":\"$RR\",\"tramoCodigo\":1,\"monto\":0,\"metodo\":\"nfc\",\"ocurridoEn\":\"$T\"}]}" | jq -c '.resultados[0] | {estado, confirmadoPor: .cobro.confirmadoPor}'
+get $ROSA /me/frecuentes | jq -c
+```
+
+✅ Esperado:
+
+- recibo de Rosa: `{"estado":"ok","confirmadoPor":["pasajero"]}` (creó el cobro)
+- cobro de Luis después: `{"estado":"ok","confirmadoPor":["pasajero","recolector"]}` (solo confirmó; no cobra dos veces)
+- frecuentes: `[{"lineaCodigo":1,"tramoCodigo":1,"veces":1}]`
+
+### 3.14 Límite de intentos de login
+
+```bash
+for i in $(seq 1 11); do curl -s -o /dev/null -w "%{http_code} " -X POST $API/auth/login -H 'Content-Type: application/json' -d '{"telefono":"04149999999","clave":"0000"}'; done; echo
+```
+
+✅ Esperado: diez `401` y luego `429` (`DEMASIADOS_INTENTOS`). Ese teléfono queda frenado 15 min; los demás siguen entrando. Reiniciar el backend limpia el contador.
+
+### 3.15 Volver a dejar todo limpio
 
 ```bash
 npm run bd:reiniciar
@@ -321,7 +347,7 @@ from pasaje.cobros order by ocurrido_en desc;
 
 | # | Prueba | ✅ |
 |---|---|---|
-| 1 | `npm test` → 139 pass | ☐ |
+| 1 | `npm test` → 0 fail | ☐ |
 | 2 | `npm run demo` completa | ☐ |
 | 3.3 | Recarga suma al saldo | ☐ |
 | 3.4 | 5 boletos de 14.000 para Ana | ☐ |
@@ -333,4 +359,6 @@ from pasaje.cobros order by ocurrido_en desc;
 | 3.10 | Doble gasto bloquea y aparece en la central | ☐ |
 | 3.11 | Ubicación en el mapa | ☐ |
 | 3.12 | Central: resumen, tabulador, categorías, unidad nueva | ☐ |
+| 3.13 | Recibo crea el cobro y el recolector solo confirma | ☐ |
+| 3.14 | Login frenado tras 10 intentos | ☐ |
 | 4 | El teléfono llega a `/salud` | ☐ |

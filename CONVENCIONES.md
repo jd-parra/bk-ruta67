@@ -180,6 +180,13 @@ Si el handler de una ruta es de una o dos líneas (leer `req`, llamar al servici
 | `JWT_SECRETO` | cadena aleatoria larga |
 | `JWT_EXPIRA` | `7d` |
 | `LLAVE_FIRMA_BOLETOS` | llave secreta Ed25519 en base64url (no requerida en dev) |
+| `CORS_ORIGENES` | `*` en dev · en producción, lista separada por comas (obligatoria) |
+| `LIMITE_LOGIN` | `10` intentos fallidos por teléfono cada 15 min |
+| `LIMITE_REGISTRO` | `20` registros por IP cada hora |
+
+En producción (`NODE_ENV=production`) el servidor **no arranca** si falta `LLAVE_FIRMA_BOLETOS`, si `JWT_SECRETO` es el de ejemplo o tiene menos de 32 caracteres, o si `CORS_ORIGENES` es `*`.
+
+**Respaldos:** `npm run bd:respaldo` guarda todo en `respaldos/` (ignorado por git: tiene datos personales y hashes). `npm run bd:restaurar -- <archivo> --confirmar` reemplaza todos los datos.
 
 ---
 

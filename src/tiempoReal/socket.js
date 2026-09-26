@@ -2,6 +2,7 @@
 import { Server } from 'socket.io';
 import { ROLES } from '../../shared/codigos.js';
 import { pool } from '../bd/pool.js';
+import { config } from '../config/index.js';
 import { verificarToken } from '../modulos/auth/servicio.js';
 import { buscarPorId } from '../modulos/usuarios/repositorio.js';
 import { logger } from '../utils/logger.js';
@@ -14,7 +15,7 @@ import { SALAS } from './eventos.js';
  * @returns {Server}
  */
 export function iniciarTiempoReal(servidorHttp) {
-  const io = new Server(servidorHttp, { cors: { origin: '*' } });
+  const io = new Server(servidorHttp, { cors: { origin: config.corsOrigenes } });
 
   io.use(async (socket, next) => {
     try {

@@ -23,6 +23,9 @@ servidor.on('error', (error) => {
 servidor.listen(config.puerto, () => {
   logger.info(`Pasaje escuchando en http://0.0.0.0:${config.puerto}/api/v1`);
   calentarPool().catch((error) => logger.warn({ err: error }, 'no se pudo calentar la BD'));
+  if (config.secretoJwtDeEjemplo) {
+    logger.warn('JWT_SECRETO es el de ejemplo: cámbialo antes de usar esto con gente real');
+  }
 });
 
 async function apagar(senal) {

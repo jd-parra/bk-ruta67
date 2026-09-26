@@ -1,6 +1,8 @@
 import cors from 'cors';
 import express from 'express';
+import helmet from 'helmet';
 import pinoHttp from 'pino-http';
+import { config } from './config/index.js';
 import { logger } from './utils/logger.js';
 import { manejadorErrores, rutaNoEncontrada } from './middlewares/manejadorErrores.js';
 import { rutasAuth } from './modulos/auth/rutas.js';
@@ -37,8 +39,9 @@ export function crearApp() {
       customErrorMessage: (req, res) => `${req.method} ${req.originalUrl} → ${res.statusCode}`,
     }),
   );
-  // Fase 1: red local, cualquier origen (el panel web corre en otro puerto). Auth va por Bearer, no cookies.
-  app.use(cors());
+  app.use(helmet());
+  // Desarrollo: cualquier origen. Producción: solo CORS_ORIGENES. Auth va por Bearer, no cookies.
+  app.use(cors({ origin: config.corsOrigenes }));
   app.use(express.json({ limit: '1mb' }));
 
   const api = express.Router();
