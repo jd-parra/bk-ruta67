@@ -524,8 +524,10 @@ Huecos del contrato que había que decidir para implementar. Referencia completa
 
 **Cobros**
 - Cada resultado de `/sync/cobros` con `ok`, `duplicado` o `conflicto` trae `cobro`. `conflicto` trae `codigo: "BOLETO_USADO"`.
-- `duplicado` = mismo `bid`, mismo recolector y mismo `ocurridoEn` truncado a segundos. Cualquier otro uso del mismo `bid` es `conflicto`.
 - Un boleto con firma válida pero que no emitió este backend (por ejemplo, el de `npm run boleto-prueba`) → `rechazado` / `BOLETO_INVALIDO`.
+- **Mismo viaje** = mismo `bid`, misma unidad y mismo `ocurridoEn` truncado a segundos. Si lo reporta el otro teléfono (recibo del pasajero o cobro del recolector), el resultado es `ok` y solo se agrega a `confirmadoPor`; si lo reenvía el mismo teléfono, `duplicado`. Cualquier otro uso del `bid` es `conflicto`.
+- `POST /sync/recibos`: el boleto debe ser del pasajero que sube el recibo (si no, `BOLETO_INVALIDO`); la línea del recibo debe ser la de la unidad (`TRAMO_INVALIDO`); unidad inexistente o sin recolector → `VALIDACION`. El cobro creado por un recibo queda a nombre del recolector asignado a esa unidad.
+- `GET /me/frecuentes` cuenta todos los cobros no anulados del pasajero, ordenados por `veces`.
 - `DELETE /sync/cobros/:bid` → `204`; `404` si no es un cobro suyo; `409 CONFLICTO` si pasaron más de 2 minutos o si el pasajero ya gastó el saldo liberado.
 
 **Central**
