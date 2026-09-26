@@ -393,6 +393,7 @@ El pasajero muestra `P2:` + base64url(boleto) + `.` + tramoSugerido. El recolect
 | 409 | `CONFLICTO` | Dato único repetido (por ejemplo, teléfono ya registrado) |
 | 422 | `SALDO_INSUFICIENTE` | No alcanza para emitir boletos |
 | 422 | `TRAMO_INVALIDO` | El tramo no es de la línea de la unidad |
+| 429 | `DEMASIADOS_INTENTOS` | 10 logins fallidos del mismo teléfono en 15 min, o 20 registros por red en 1 h |
 | — | `BOLETO_INVALIDO` | Firma mala (app del recolector o sync) |
 | — | `BOLETO_VENCIDO` | Pasaron los 7 días |
 | — | `BOLETO_USADO` | `bid` ya cobrado o revocado |
