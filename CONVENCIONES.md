@@ -114,6 +114,8 @@ Módulos: `auth`, `billetera`, `recargas`, `boletos`, `lineas`, `tabuladores`, `
 
 ## 7. Base de datos
 
+- **Todo vive en el esquema `pasaje`, nunca en `public`.** Supabase publica `public` por su API REST automática; `pasaje` no está expuesto y la migración inicial le quita el acceso a los roles `anon` y `authenticated`.
+- **Las consultas nombran el esquema:** `pasaje.usuarios`, no `usuarios`. Con el Transaction pooler no se puede fijar el `search_path`.
 - Tablas y columnas en `snake_case`, plural (`usuarios`, `boletos`, `cobros`).
 - PK `id UUID`. Fechas `TIMESTAMPTZ`. Enums como `TEXT` + `CHECK`.
 - Códigos cortos: `INTEGER CHECK (codigo BETWEEN 1 AND 65535)`. `SMALLINT` no alcanza (máx. 32767).
@@ -131,7 +133,7 @@ Módulos: `auth`, `billetera`, `recargas`, `boletos`, `lineas`, `tabuladores`, `
   - todo lo que necesite la misma conexión va dentro de `conTransaccion()` (`BEGIN … COMMIT` sí queda en una sola conexión);
   - nada de estado de sesión: ni `SET` sin `LOCAL`, ni `LISTEN/NOTIFY`, ni advisory locks de sesión, ni sentencias preparadas con nombre (`pg` solo las usa si se le pasa `name`, así que **no se pasa**);
   - las migraciones corren con `--no-lock` (el lock de node-pg-migrate es de sesión).
-- Las migraciones se corren desde aquí (`npm run bd:migrar`), no desde el editor SQL de Supabase.
+- Las migraciones se corren desde aquí (`npm run bd:migrar`), no desde el editor SQL de Supabase. En el **Table Editor** de Supabase, elige el esquema `pasaje` arriba a la izquierda para ver las tablas.
 
 ---
 

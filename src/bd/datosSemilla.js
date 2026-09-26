@@ -91,6 +91,13 @@ export const LINEAS_SEMILLA = [
   },
 ];
 
+export const FERIADOS_SEMILLA = [
+  { fecha: '2026-10-12', nombre: 'Día de la Resistencia Indígena' },
+  { fecha: '2026-12-24', nombre: 'Nochebuena' },
+  { fecha: '2026-12-25', nombre: 'Navidad' },
+  { fecha: '2026-12-31', nombre: 'Fin de año' },
+];
+
 export const UNIDADES_SEMILLA = [
   { codigo: 101, placa: 'AB123CD', linea: 1, recolector: '04140000002' },
   { codigo: 102, placa: 'AC456EF', linea: 3, recolector: '04140000006' },

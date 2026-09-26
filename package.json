@@ -14,10 +14,11 @@
     "lint": "eslint .",
     "formato": "prettier --write .",
     "bd:levantar": "docker compose up -d bd",
-    "bd:migrar": "node-pg-migrate up --no-lock -m src/bd/migraciones --envPath .env",
-    "bd:revertir": "node-pg-migrate down --no-lock -m src/bd/migraciones --envPath .env",
+    "bd:migrar": "node --env-file=.env src/bd/migrar.js up",
+    "bd:revertir": "node --env-file=.env src/bd/migrar.js down",
     "bd:semilla": "node --env-file=.env src/bd/semilla.js",
-    "boleto-prueba": "node --env-file=.env scripts/boletoPrueba.js"
+    "boleto-prueba": "node --env-file=.env scripts/boletoPrueba.js",
+    "bd:reiniciar": "npm run bd:migrar && npm run bd:semilla"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",

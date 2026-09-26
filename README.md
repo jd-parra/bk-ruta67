@@ -7,9 +7,10 @@ Backend del MVP Pasaje (Mérida). Qué expone la API: [`CONTRATO.md`](CONTRATO.m
 ```bash
 cp .env.example .env
 npm install
-npm run bd:levantar     # Postgres local en el puerto 5433
+npm run bd:levantar     # Postgres local en el puerto 5433 (para las pruebas)
+npm run bd:reiniciar    # migraciones + semilla en la BD de .env (¡borra los datos!)
 npm run dev             # http://localhost:3000/api/v1/salud
-npm test
+npm test                # siempre usa la BD local de pruebas
 ```
 
 Para usar Supabase, pon en `.env` la URL del **Transaction pooler** (puerto 6543) en `DATABASE_URL` y `PGSSL=true`.
