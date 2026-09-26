@@ -13,3 +13,27 @@ npm test
 ```
 
 Para usar Supabase, pon en `.env` la URL del **Transaction pooler** (puerto 6543) en `DATABASE_URL` y `PGSSL=true`.
+
+## `shared/` para la app (Andy)
+
+Copia la carpeta `shared/` tal cual a la app. Solo depende de `tweetnacl` y no usa APIs de Node.
+
+| Archivo | Qué tiene |
+|---|---|
+| `boleto.js` | `firmarBoleto`, `decodificarBoleto`, `verificarFirma`, `validarBoletoParaCobro` (reglas del §8.3 en orden), `rawABoleto` / `boletoARaw` |
+| `tarifa.js` | `calcularMonto` (domingo/feriado en hora de Venezuela), `tarifaMaximaRed`, `tabuladorVigente` |
+| `bytes.js` | base64url, hex y UUID ↔ bytes sin `Buffer` |
+| `codigos.js` | códigos de error, categorías, constantes del boleto y NFC |
+| `vectores.json` | casos fijos: si tu código da otro resultado, está mal |
+| `dev-keys.json` | llave de desarrollo (**solo pruebas**) |
+
+### Boleto de prueba
+
+```bash
+npm run boleto-prueba                                   # Ana, estudiante, tramo sugerido 1
+npm run boleto-prueba -- --telefono 04140000004 --tramo 2   # Pedro, general
+npm run boleto-prueba -- --telefono 04140000005             # Rosa, exonerada (reserva 0)
+npm run boleto-prueba -- --vencido                          # para probar BOLETO_VENCIDO
+```
+
+Imprime el `raw` (base64url), el `hex`, la `llavePublica` para verificarlo y `respuestaPedirBoletoHex`: la respuesta completa al `PEDIR_BOLETO` del §9 (boleto + tramo sugerido + `90 00`), lista para devolverla desde el HCE.

@@ -1,0 +1,10 @@
+{
+  "name": "@pasaje/shared",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Lógica compartida entre el backend y la app: boletos firmados, tarifas y códigos",
+  "type": "module",
+  "dependencies": {
+    "tweetnacl": "^1.0.3"
+  }
+}
