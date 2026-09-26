@@ -15,7 +15,7 @@ Supabase Realtime exigiría que las apps hablen directo con la BD usando Auth/RL
 ### Hosting fase 1
 Backend en la laptop de Juan, en la red local (`http://<ip-local>:3000/api/v1`, como dice el contrato), apuntando a Supabase. Así los datos sobreviven y los demás pueden ver la BD en el panel de Supabase. Deploy (Render free) queda opcional.
 
-Conexión a Supabase: usar el **Session pooler** (puerto 5432, IPv4) con `ssl`. La conexión directa es solo IPv6.
+Conexión a Supabase: **Transaction pooler** (puerto 6543, IPv4) con `ssl`. La conexión directa es solo IPv6 y el Session pooler (5432) se queda colgado desde nuestra red. Consecuencias en CONVENCIONES.md §7.
 
 ---
 
@@ -42,13 +42,13 @@ src/
   utils/                ← ErrorApp, helpers
 scripts/boletoPrueba.js ← npm run boleto-prueba
 pruebas/
-docker-compose.yml      ← Postgres 16 local
+docker-compose.yml      ← Postgres 17 local (igual que Supabase)
 .env.example
 ```
 
 Módulos: `auth`, `billetera`, `recargas`, `boletos`, `lineas`, `tabuladores`, `recolector`, `sincronizacion`, `ubicaciones`, `central`, `publico`, `mapa`.
 
-Stack: Node 22 ESM, Express 5, Socket.IO 4, `pg`, `node-pg-migrate`, `zod`, `jsonwebtoken`, `bcryptjs`, `tweetnacl`, `pino`, `node-cron`, `node:test` + `supertest`, Prettier + ESLint.
+Stack: Node ≥ 20 ESM, Express 5, Socket.IO 4, `pg`, `node-pg-migrate`, `zod`, `jsonwebtoken`, `bcryptjs`, `tweetnacl`, `pino`, `node-cron`, `node:test` + `supertest`, Prettier + ESLint.
 
 ---
 
@@ -112,7 +112,7 @@ Stack: Node 22 ESM, Express 5, Socket.IO 4, `pg`, `node-pg-migrate`, `zod`, `jso
 | 0 | Reescribir `CONVENCIONES.md` todo en español y con Supabase; `package.json`, Prettier, ESLint, docker-compose, `.env.example`, config, `app.js`/`servidor.js`, `ErrorApp` + `manejadorErrores`, `GET /api/v1/salud`. Primer commit y push | `npm run dev` responde; `main` en GitHub |
 | 1 | `shared/`: boleto.js, tarifa.js, codigos.js, dev-keys.json + pruebas con vectores fijos | pruebas en verde |
 | 2 | `npm run boleto-prueba` (imprime base64url y hex) → **avisar a Andy** | Andy prueba HCE con un boleto real |
-| 3 | Migraciones + semilla §13 (`npm run bd:reiniciar`); crear proyecto Supabase y probar contra él | los 5 usuarios, 3 líneas y la unidad 101 existen |
+| 3 | Migraciones + semilla §13 (`npm run bd:reiniciar`); crear proyecto Supabase y probar contra él | los 6 usuarios, 3 líneas y las unidades 101 (urbana) y 102 (suburbana) existen |
 | 4 | Auth: registro, login, `/me`, `autenticar`, `exigirRol`, `CUENTA_BLOQUEADA` | login de los usuarios semilla |
 | 5 | Billetera, recargas simuladas, movimientos | recarga → saldo + movimiento |
 | 6 | Líneas, tabulador, `/publico/tarifas` | montos = `shared/tarifa.js` |
@@ -144,4 +144,4 @@ Fuera de fase 1: `/sync/recibos`, `/me/frecuentes`, QR, push.
 - `npm test`: `shared` (vectores), dinero (recarga → emisión → cobro → liberación → vencimiento, con saldos que cuadran), sync (ok, duplicado, conflicto + bloqueo, cada `BOLETO_*`, `TRAMO_INVALIDO`), anular dentro y fuera de los 2 min, forma de las respuestas contra el contrato.
 - Flujo manual con `curl` o un archivo `.http`: login de Ana → recarga 100000 → `POST /boletos` → tomar un `raw` → login de Luis → `GET /recolector/paquete` → `POST /sync/cobros` → verificar que la billetera de Ana liberó la diferencia (estudiante: 10000) y que llegó `cobro:confirmado` (script cliente `socket.io-client`).
 - Repetir el mismo `POST /sync/cobros` → `duplicado`; con otro `ocurridoEn` → `conflicto` y Ana bloqueada.
-- Correr contra Supabase (`DATABASE_URL` del Session pooler) y ver las tablas en su panel.
+- Correr contra Supabase (`DATABASE_URL` del Transaction pooler) y ver las tablas en su panel.

@@ -12,4 +12,4 @@ npm run dev             # http://localhost:3000/api/v1/salud
 npm test
 ```
 
-Para usar Supabase, pon en `.env` la URL del **Session pooler** en `DATABASE_URL` y `PGSSL=true`.
+Para usar Supabase, pon en `.env` la URL del **Transaction pooler** (puerto 6543) en `DATABASE_URL` y `PGSSL=true`.

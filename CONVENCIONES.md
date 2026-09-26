@@ -125,7 +125,12 @@ Módulos: `auth`, `billetera`, `recargas`, `boletos`, `lineas`, `tabuladores`, `
 
 ### Supabase
 
-- Conexión por el **Session pooler** (puerto 5432, IPv4), con `?sslmode=require` o `PGSSL=true`. La conexión directa de Supabase es solo IPv6.
+- Conexión por el **Transaction pooler** (puerto **6543**, IPv4) con `PGSSL=true`. La conexión directa es solo IPv6, y el Session pooler (5432) no pasa desde nuestra red.
+- Supabase corre **PostgreSQL 17**; el Docker local usa la misma versión.
+- En modo transacción cada consulta suelta puede caer en una conexión distinta del servidor. Por eso:
+  - todo lo que necesite la misma conexión va dentro de `conTransaccion()` (`BEGIN … COMMIT` sí queda en una sola conexión);
+  - nada de estado de sesión: ni `SET` sin `LOCAL`, ni `LISTEN/NOTIFY`, ni advisory locks de sesión, ni sentencias preparadas con nombre (`pg` solo las usa si se le pasa `name`, así que **no se pasa**);
+  - las migraciones corren con `--no-lock` (el lock de node-pg-migrate es de sesión).
 - Las migraciones se corren desde aquí (`npm run bd:migrar`), no desde el editor SQL de Supabase.
 
 ---
@@ -167,7 +172,7 @@ Módulos: `auth`, `billetera`, `recargas`, `boletos`, `lineas`, `tabuladores`, `
 | `PORT` | `3000` |
 | `DATABASE_URL` | `postgres://pasaje:pasaje@localhost:5433/pasaje` |
 | `DATABASE_URL_PRUEBAS` | `postgres://pasaje:pasaje@localhost:5433/pasaje_pruebas` |
-| `PGSSL` | `false` local · `true` Supabase |
+| `PGSSL` | `false` local · `true` Supabase (Transaction pooler, puerto 6543) |
 | `JWT_SECRETO` | cadena aleatoria larga |
 | `JWT_EXPIRA` | `7d` |
 | `LLAVE_FIRMA_BOLETOS` | llave secreta Ed25519 en base64url (no requerida en dev) |
