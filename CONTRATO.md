@@ -190,7 +190,9 @@ interface Cobro {
 ## 6. Endpoints
 
 ### 6.1 Auth
-- `POST /auth/registro` `{ nombre, telefono, clave, rol, categoria? }` → `201 { token, usuario }`
+- `POST /auth/registro` `{ nombre, telefono, clave, categoria? }` → `201 { token, usuario }`
+  **Solo crea pasajeros** (`rol` se puede omitir o mandar como `"pasajero"`; cualquier otro → `400 VALIDACION`). Los recolectores los crea la central al asignarlos a una línea/unidad; la central, por semilla.
+  `telefono`: 11 dígitos empezando por `04`. `clave`: mínimo 4 caracteres. Teléfono ya registrado → `409 CONFLICTO`.
 - `POST /auth/login` `{ telefono, clave }` → `200 { token, usuario }`
 - `GET /me` → `Usuario`
 
@@ -387,6 +389,8 @@ El pasajero muestra `P2:` + base64url(boleto) + `.` + tramoSugerido. El recolect
 | 401 | `NO_AUTENTICADO` | JWT faltante o vencido |
 | 403 | `ROL_INVALIDO` | Rol equivocado para ese endpoint |
 | 403 | `CUENTA_BLOQUEADA` | Doble gasto detectado |
+| 404 | `NO_ENCONTRADO` | Ruta o recurso que no existe |
+| 409 | `CONFLICTO` | Dato único repetido (por ejemplo, teléfono ya registrado) |
 | 422 | `SALDO_INSUFICIENTE` | No alcanza para emitir boletos |
 | 422 | `TRAMO_INVALIDO` | El tramo no es de la línea de la unidad |
 | — | `BOLETO_INVALIDO` | Firma mala (app del recolector o sync) |
