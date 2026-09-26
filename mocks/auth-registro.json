@@ -1,0 +1,13 @@
+{
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.ejemplo.firma",
+  "usuario": {
+    "id": "5b1c2f0e-7d4a-4c1e-9f3b-2a6d8e9c0b11",
+    "nombre": "Estudiante Nuevo",
+    "telefono": "04261112233",
+    "rol": "pasajero",
+    "categoria": "estudiante",
+    "categoriaVerificada": false,
+    "bloqueado": false,
+    "creadoEn": "2026-09-26T02:10:00.000Z"
+  }
+}

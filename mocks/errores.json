@@ -1,0 +1,29 @@
+{
+  "loginIncorrecto": {
+    "error": { "codigo": "NO_AUTENTICADO", "mensaje": "Teléfono o clave incorrectos" }
+  },
+  "sesionVencida": {
+    "error": { "codigo": "NO_AUTENTICADO", "mensaje": "Tu sesión venció, vuelve a entrar" }
+  },
+  "telefonoRepetido": {
+    "error": { "codigo": "CONFLICTO", "mensaje": "Ese teléfono ya está registrado" }
+  },
+  "cuentaBloqueada": {
+    "error": {
+      "codigo": "CUENTA_BLOQUEADA",
+      "mensaje": "Tu cuenta está bloqueada. Comunícate con la central"
+    }
+  },
+  "rolInvalido": {
+    "error": { "codigo": "ROL_INVALIDO", "mensaje": "No tienes permiso para hacer esto" }
+  },
+  "validacion": {
+    "error": {
+      "codigo": "VALIDACION",
+      "mensaje": "El teléfono debe tener 11 dígitos y empezar por 04",
+      "detalle": [
+        { "campo": "telefono", "mensaje": "El teléfono debe tener 11 dígitos y empezar por 04" }
+      ]
+    }
+  }
+}
