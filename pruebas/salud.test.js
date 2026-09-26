@@ -1,14 +1,17 @@
-import { test } from 'node:test';
+import { after, test } from 'node:test';
 import assert from 'node:assert/strict';
 import request from 'supertest';
 import { crearApp } from '../src/app.js';
+import { pool } from '../src/bd/pool.js';
 
 const app = crearApp();
 
-test('GET /api/v1/salud responde ok', async () => {
+after(() => pool.end());
+
+test('GET /api/v1/salud responde ok y la BD contesta', async () => {
   const respuesta = await request(app).get('/api/v1/salud');
   assert.equal(respuesta.status, 200);
-  assert.deepEqual(respuesta.body, { ok: true });
+  assert.deepEqual(respuesta.body, { ok: true, bd: 'ok' });
 });
 
 test('ruta desconocida responde con el formato de error del contrato', async () => {

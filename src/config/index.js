@@ -43,7 +43,8 @@ export function leerConfig(entorno) {
         env.NODE_ENV === 'test' && env.DATABASE_URL_PRUEBAS
           ? env.DATABASE_URL_PRUEBAS
           : env.DATABASE_URL,
-      ssl: env.PGSSL,
+      // Las pruebas siempre usan el Postgres local (sin SSL), aunque .env apunte a Supabase.
+      ssl: env.NODE_ENV === 'test' ? false : env.PGSSL,
     },
     jwt: { secreto: env.JWT_SECRETO, expira: env.JWT_EXPIRA },
     llaveFirmaBoletos: env.LLAVE_FIRMA_BOLETOS || null,

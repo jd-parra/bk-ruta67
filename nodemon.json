@@ -1,0 +1,7 @@
+{
+  "watch": ["src", "shared", ".env"],
+  "ext": "js,json",
+  "ignore": ["pruebas/", "mocks/", "node_modules/"],
+  "exec": "node --env-file=.env src/servidor.js",
+  "signal": "SIGTERM"
+}
