@@ -505,3 +505,32 @@ CONTRATO.md
 - ✅ App para todos los pasajeros, con categorías verificadas por la central.
 - ✅ Una sola app con dos modos; dos fases.
 - ⏳ **"Contacto proximidad"**: se asumió NFC. Confirmar si se refería a otra cosa (Bluetooth, pago a número de teléfono).
+
+---
+
+## 19. Detalles que definió el backend (fase 1)
+
+Huecos del contrato que había que decidir para implementar. Referencia completa: `docs/API.md`; ejemplos reales: `mocks/`.
+
+**Dinero**
+- El movimiento `cobro` tiene `monto: 0`: el cobro sale de lo reservado, no del disponible. La diferencia entre lo reservado y la tarifa real entra como `liberacion`.
+- `viajesEstimados` es `null` cuando `tarifaReferencia` es 0 (exonerados): viajes ilimitados.
+- Fase 1: `POST /recargas` solo acepta `metodo: "simulada"`. Máximo por recarga: 100.000,00 Bs.
+- Un boleto vencido libera su reserva **24 h después** de `expira`, para que alcancen a sincronizar los cobros hechos sin conexión.
+
+**Boletos**
+- `POST /boletos/revocar` → `{ revocados: number, billetera }`.
+- `GET /boletos` devuelve el mismo `raw` que se emitió (la firma Ed25519 es determinista).
+
+**Cobros**
+- Cada resultado de `/sync/cobros` con `ok`, `duplicado` o `conflicto` trae `cobro`. `conflicto` trae `codigo: "BOLETO_USADO"`.
+- `duplicado` = mismo `bid`, mismo recolector y mismo `ocurridoEn` truncado a segundos. Cualquier otro uso del mismo `bid` es `conflicto`.
+- Un boleto con firma válida pero que no emitió este backend (por ejemplo, el de `npm run boleto-prueba`) → `rechazado` / `BOLETO_INVALIDO`.
+- `DELETE /sync/cobros/:bid` → `204`; `404` si no es un cobro suyo; `409 CONFLICTO` si pasaron más de 2 minutos o si el pasajero ya gastó el saldo liberado.
+
+**Central**
+- Los recolectores los crea la central al asignarlos a una unidad: `POST /central/unidades` y `PUT /central/unidades/:id` aceptan `recolector: { nombre, telefono, clave }` o `recolectorId`.
+- Endpoints extra: `PUT /central/unidades/:id`, `PUT /central/lineas/:id`, `GET /central/recolectores`.
+- `GET /central/unidades` devuelve `Unidad` + `lineaCodigo`, `lineaNombre` y `recolector: { id, nombre, telefono } | null`.
+- Un tabulador o una línea que deje un tramo suburbano fuera de la escala → `422 TRAMO_INVALIDO`.
+- Desbloquear una cuenta marca sus conflictos como resueltos.
