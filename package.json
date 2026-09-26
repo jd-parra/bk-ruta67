@@ -1,0 +1,43 @@
+{
+  "name": "pasaje-backend",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Backend del MVP Pasaje: boletos firmados, tarifas por gaceta y cobros NFC",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "node --watch --env-file=.env src/servidor.js",
+    "start": "node src/servidor.js",
+    "test": "NODE_ENV=test node --env-file=.env --test --test-concurrency=1 pruebas/ shared/",
+    "lint": "eslint .",
+    "formato": "prettier --write .",
+    "bd:levantar": "docker compose up -d bd",
+    "bd:migrar": "node-pg-migrate up -m src/bd/migraciones --envPath .env",
+    "bd:revertir": "node-pg-migrate down -m src/bd/migraciones --envPath .env",
+    "bd:semilla": "node --env-file=.env src/bd/semilla.js",
+    "boleto-prueba": "node --env-file=.env scripts/boletoPrueba.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "node-cron": "^4.6.0",
+    "node-pg-migrate": "^9.0.0",
+    "pg": "^8.23.0",
+    "pino": "^10.3.1",
+    "pino-http": "^11.0.0",
+    "socket.io": "^4.8.4",
+    "tweetnacl": "^1.0.3",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.5",
+    "eslint": "^9.39.5",
+    "globals": "^17.12.0",
+    "prettier": "^3.9.9",
+    "socket.io-client": "^4.8.4",
+    "supertest": "^7.3.0"
+  }
+}

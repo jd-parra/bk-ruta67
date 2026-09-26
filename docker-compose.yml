@@ -1,0 +1,15 @@
+services:
+  bd:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: pasaje
+      POSTGRES_PASSWORD: pasaje
+      POSTGRES_DB: pasaje
+    ports:
+      - '5433:5432'
+    volumes:
+      - datos_bd:/var/lib/postgresql/data
+      - ./scripts/crearBdPruebas.sql:/docker-entrypoint-initdb.d/01-pruebas.sql:ro
+
+volumes:
+  datos_bd:
