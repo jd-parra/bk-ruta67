@@ -238,6 +238,17 @@ interface Cobro {
 ### 6.4 Sincronización del pasajero (fase 2)
 - `POST /sync/recibos` `{ recibos: ReciboLocal[] }` → mismo formato de resultados que `/sync/cobros`.
   Si el recibo llega antes que el cobro del recolector, **el cobro se crea con el recibo**. El que llegue segundo solo lo confirma (`confirmadoPor`).
+  ```ts
+  interface ReciboLocal {
+    bid: string;          // del RECIBO (paso 3 NFC)
+    lineaCodigo: number;  // del PEDIR_BOLETO (paso 2)
+    unidadCodigo: number; // del PEDIR_BOLETO (paso 2)
+    tramoCodigo: number;  // del RECIBO
+    monto: number;        // del RECIBO, céntimos
+    ocurridoEn: string;   // del RECIBO (uint32 segundos → ISO 8601 UTC)
+  }
+  ```
+  Como el recibo trae `ocurridoEn` en segundos, el backend compara cobro y recibo **truncando a segundos**. Solo existe por NFC (el QR no tiene paso 3).
 
 ### 6.5 Central
 - `GET /central/resumen?desde=`
@@ -397,7 +408,8 @@ Los `BOLETO_*` los detecta primero la app del recolector sin internet; el backen
     { "telefono": "04140000004", "clave": "1234", "nombre": "Pedro General", "rol": "pasajero", "categoria": "general", "categoriaVerificada": true },
     { "telefono": "04140000005", "clave": "1234", "nombre": "Rosa Mayor", "rol": "pasajero", "categoria": "exonerado", "categoriaVerificada": true },
     { "telefono": "04140000002", "clave": "1234", "nombre": "Luis Recolector", "rol": "recolector" },
-    { "telefono": "04140000003", "clave": "1234", "nombre": "Central Mérida", "rol": "central" }
+    { "telefono": "04140000003", "clave": "1234", "nombre": "Central Mérida", "rol": "central" },
+    { "telefono": "04140000006", "clave": "1234", "nombre": "Marta Recolectora", "rol": "recolector" }
   ],
   "tabulador": {
     "fuente": "Tabulador septiembre 2026 (valores de prueba)",
@@ -417,7 +429,10 @@ Los `BOLETO_*` los detecta primero la app del recolector sin internet; el backen
       "tramos": [ { "codigo": 1, "nombre": "Centro – Ejido", "km": 9 },
                   { "codigo": 2, "nombre": "Centro – La Parroquia", "km": 6 } ] }
   ],
-  "unidad": { "codigo": 101, "placa": "AB123CD", "linea": 1, "recolector": "04140000002" },
+  "unidades": [
+    { "codigo": 101, "placa": "AB123CD", "linea": 1, "recolector": "04140000002" },
+    { "codigo": 102, "placa": "AC456EF", "linea": 3, "recolector": "04140000006" }
+  ],
   "boletoDePrueba": "se genera con `npm run boleto-prueba` en /backend (llave de desarrollo en /shared/dev-keys.json)"
 }
 ```
