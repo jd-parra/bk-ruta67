@@ -48,7 +48,7 @@ Errores, siempre: `{ "error": { "codigo", "mensaje", "detalle?" } }`. `mensaje` 
 | GET | `/recolector/paquete` | — | todo para cobrar sin conexión | `recolector-paquete` |
 | POST | `/sync/cobros` | `{ cobros: CobroLocal[] }` (1–500) | `{ resultados }` | `sync-cobros-*` |
 | DELETE | `/sync/cobros/:bid` | — | `204` · `404` si no es suyo · `409` si pasaron 2 min | — |
-| GET | `/recolector/cobros?desde=` | — | `{ total, cantidad, cobros }` (por defecto, desde hoy 00:00 VE) | `recolector-cobros` |
+| GET | `/recolector/cobros?desde=&hasta=` | — | `{ total, cantidad, cobros }` (por defecto, desde hoy 00:00 VE; `hasta` opcional y exclusivo) | `recolector-cobros` |
 | POST | `/ubicaciones` | `{ lat, lng }` | `204` | — |
 
 Cada resultado de `/sync/cobros`:

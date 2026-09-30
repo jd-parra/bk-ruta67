@@ -52,12 +52,13 @@ export async function armarPaquete(recolector) {
 }
 
 /**
- * Cobros del recolector desde una fecha (por defecto, desde el inicio de hoy en Venezuela).
+ * Cobros del recolector en [desde, hasta) (por defecto, desde el inicio de hoy en Venezuela y sin límite).
  * @param {object} recolector fila de BD
  * @param {Date} [desde]
+ * @param {Date} [hasta] exclusivo
  */
-export async function cobrosDelRecolector(recolector, desde = inicioDeHoyVenezuela()) {
-  const filas = await cobros.listarPorRecolector(pool, recolector.id, desde);
+export async function cobrosDelRecolector(recolector, desde = inicioDeHoyVenezuela(), hasta = null) {
+  const filas = await cobros.listarPorRecolector(pool, recolector.id, desde, hasta);
   const lista = filas.map(serializarCobro);
   return {
     total: lista.reduce((suma, c) => suma + c.monto, 0),

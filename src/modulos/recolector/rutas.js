@@ -20,7 +20,16 @@ const esquemaSync = z.object({
   cobros: z.array(esquemaCobroLocal).min(1).max(MAX_COBROS_POR_SYNC),
 });
 
-const esquemaDesde = z.object({ desde: z.iso.datetime({ offset: true }).optional() });
+// `hasta` es exclusivo: un día es [00:00, 00:00 del día siguiente).
+const esquemaRango = z
+  .object({
+    desde: z.iso.datetime({ offset: true }).optional(),
+    hasta: z.iso.datetime({ offset: true }).optional(),
+  })
+  .refine((q) => !q.desde || !q.hasta || Date.parse(q.hasta) > Date.parse(q.desde), {
+    message: 'hasta debe ser posterior a desde',
+    path: ['hasta'],
+  });
 const esquemaBid = z.object({ bid: z.uuid('bid inválido') });
 
 export const rutasRecolector = Router();
@@ -33,10 +42,16 @@ rutasRecolector.get('/recolector/paquete', ...soloRecolector, async (req, res) =
 rutasRecolector.get(
   '/recolector/cobros',
   ...soloRecolector,
-  validar(esquemaDesde, 'query'),
+  validar(esquemaRango, 'query'),
   async (req, res) => {
-    const { desde } = req.validado.query;
-    res.json(await cobrosDelRecolector(req.usuario, desde ? new Date(desde) : undefined));
+    const { desde, hasta } = req.validado.query;
+    res.json(
+      await cobrosDelRecolector(
+        req.usuario,
+        desde ? new Date(desde) : undefined,
+        hasta ? new Date(hasta) : undefined,
+      ),
+    );
   },
 );
 
