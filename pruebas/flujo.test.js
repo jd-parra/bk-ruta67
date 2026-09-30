@@ -325,6 +325,21 @@ describe('sincronizar cobros', () => {
     assert.equal(res.body.total, 10000);
   });
 
+  test('cobros de un día anterior: el rango [desde, hasta) deja fuera los de hoy', async () => {
+    const ahora = Date.now();
+    const ayer = new Date(ahora - 48 * 3600 * 1000).toISOString();
+    const haceUnaHora = new Date(ahora - 3600 * 1000).toISOString();
+    const antes = await como(TEL.LUIS).get(`/recolector/cobros?desde=${ayer}&hasta=${haceUnaHora}`);
+    assert.equal(antes.status, 200);
+    assert.equal(antes.body.cantidad, 0);
+
+    const conHoy = await como(TEL.LUIS).get(`/recolector/cobros?desde=${ayer}&hasta=${new Date(ahora + 60_000).toISOString()}`);
+    assert.equal(conHoy.body.cantidad, 1);
+
+    const alReves = await como(TEL.LUIS).get(`/recolector/cobros?desde=${haceUnaHora}&hasta=${ayer}`);
+    assert.equal(alReves.status, 400);
+  });
+
   test('el libro cuadra', verificarLibro);
 });
 

@@ -234,7 +234,7 @@ interface Cobro {
   }
   ```
 - `DELETE /sync/cobros/:bid` → anula un cobro propio de hace menos de 2 min (botón "Corregir"); libera la reserva del boleto para volver a cobrarlo con otro tramo.
-- `GET /recolector/cobros?desde=` → `{ total, cantidad, cobros: Cobro[] }`
+- `GET /recolector/cobros?desde=&hasta=` → `{ total, cantidad, cobros: Cobro[] }` (`hasta` opcional y exclusivo: un día = `[00:00, 00:00 del siguiente)`)
 - `POST /ubicaciones` `{ lat, lng }` → `204` (cada 30 s en turno)
 
 ### 6.4 Sincronización del pasajero (fase 2)

@@ -66,12 +66,13 @@ export async function buscarDetalle(bd, cobroId) {
   return rows[0] ?? null;
 }
 
-export async function listarPorRecolector(bd, recolectorId, desde) {
+export async function listarPorRecolector(bd, recolectorId, desde, hasta = null) {
   const { rows } = await bd.query(
     `${DETALLE}
      WHERE c.recolector_id = $1 AND c.anulado_en IS NULL AND c.ocurrido_en >= $2
+       AND ($3::timestamptz IS NULL OR c.ocurrido_en < $3)
      ORDER BY c.ocurrido_en DESC`,
-    [recolectorId, desde],
+    [recolectorId, desde, hasta],
   );
   return rows;
 }
