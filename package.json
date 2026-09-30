@@ -10,7 +10,7 @@
   "scripts": {
     "dev": "nodemon",
     "start": "node src/servidor.js",
-    "test": "NODE_ENV=test node --env-file=.env --test --test-concurrency=1 pruebas/ shared/",
+    "test": "NODE_ENV=test node --env-file=.env --test --test-concurrency=1 pruebas/*.test.js shared/pruebas/*.test.js",
     "lint": "eslint .",
     "formato": "prettier --write .",
     "bd:levantar": "docker compose up -d bd",
