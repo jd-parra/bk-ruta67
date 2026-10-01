@@ -78,7 +78,7 @@ async function insertarUsuarios(cliente, usuarios) {
   }
 }
 
-async function insertarTabulador(cliente, t) {
+export async function insertarTabulador(cliente, t) {
   await cliente.query(
     `INSERT INTO pasaje.tabuladores
        (fuente, vigente_desde, descuentos, recargo_domingo_feriado, urbano_minimo, suburbano)
@@ -94,7 +94,7 @@ async function insertarTabulador(cliente, t) {
   );
 }
 
-async function insertarFeriados(cliente, feriados) {
+export async function insertarFeriados(cliente, feriados) {
   for (const { fecha, nombre } of feriados) {
     await cliente.query('INSERT INTO pasaje.feriados (fecha, nombre) VALUES ($1, $2)', [
       fecha,
@@ -104,7 +104,7 @@ async function insertarFeriados(cliente, feriados) {
 }
 
 /** @returns {Promise<Map<number, string>>} código de línea → id */
-async function insertarLineas(cliente, lineas) {
+export async function insertarLineas(cliente, lineas) {
   const ids = new Map();
   for (const linea of lineas) {
     const { rows } = await cliente.query(

@@ -42,3 +42,25 @@ npm run boleto-prueba -- --vencido                          # para probar BOLETO
 ```
 
 Imprime el `raw` (base64url), el `hex`, la `llavePublica` para verificarlo y `respuestaPedirBoletoHex`: la respuesta completa al `PEDIR_BOLETO` del §9 (boleto + tramo sugerido + `90 00`), lista para devolverla desde el HCE.
+
+## Desplegar (producción)
+
+El backend necesita estar **siempre encendido** (Socket.IO y la tarea diaria de las 4 a. m.), con `https`.
+El `Dockerfile` sirve para cualquier proveedor; `render.yaml` lo deja listo para Render.
+
+1. **BD**: un proyecto de Supabase nuevo, solo para producción. Copia la URL del *Transaction pooler* (6543).
+2. **Secretos**: `npm run secretos` imprime `JWT_SECRETO` y `LLAVE_FIRMA_BOLETOS`. Guárdalos en un gestor
+   de contraseñas: si se pierde la llave de firma, los boletos emitidos dejan de valer.
+3. **Servidor** (Render): *New > Blueprint* con este repo y llena `DATABASE_URL`, `JWT_SECRETO`,
+   `LLAVE_FIRMA_BOLETOS` y `CORS_ORIGENES` (URL del panel). Al arrancar aplica las migraciones solo.
+4. **Datos iniciales** (una vez, desde tu laptop, con un `.env.produccion` que tenga esas mismas variables y `NODE_ENV=production`):
+
+   ```bash
+   node --env-file=.env.produccion scripts/iniciarProduccion.js \
+     --nombre "Central Mérida" --telefono 0414XXXXXXX --clave "una-clave-larga"
+   ```
+
+   Crea la cuenta de la central y carga tabulador, feriados y líneas del §13 (sin los usuarios de prueba).
+   Las unidades y recolectores los crea la central (`POST /central/unidades`).
+
+**Nunca** corras `npm run bd:semilla` contra producción (borra todo; además se niega si `NODE_ENV=production`).
