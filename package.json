@@ -22,7 +22,10 @@
     "demo": "node --env-file=.env scripts/demo.js",
     "mocks": "NODE_ENV=test node --env-file=.env scripts/generarMocks.js",
     "bd:respaldo": "node --env-file=.env scripts/respaldo.js",
-    "bd:restaurar": "node --env-file=.env scripts/respaldo.js --restaurar"
+    "bd:restaurar": "node --env-file=.env scripts/respaldo.js --restaurar",
+    "start:servidor": "node src/bd/migrar.js up && node src/servidor.js",
+    "secretos": "node scripts/generarSecretos.js",
+    "produccion:iniciar": "node scripts/iniciarProduccion.js"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",

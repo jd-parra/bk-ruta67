@@ -1,0 +1,27 @@
+# Blueprint de Render: en el panel de Render, "New > Blueprint" y elige este repo.
+# Las variables marcadas sync: false se llenan a mano la primera vez (salen de `npm run secretos`).
+services:
+  - type: web
+    name: pasaje-backend
+    runtime: docker
+    # Gratis: se duerme tras 15 min sin peticiones y tarda ~1 min en despertar. Para que no se duerma,
+    # un monitor gratis (UptimeRobot o cron-job.org) pide /api/v1/salud cada 10 min; las 750 h
+    # gratis al mes alcanzan para tenerlo encendido todo el mes. Si despierta, vencerBoletos corre al arrancar.
+    plan: free
+    region: virginia
+    branch: main
+    autoDeploy: true
+    healthCheckPath: /api/v1/salud
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PGSSL
+        value: 'true'
+      - key: DATABASE_URL # Supabase de producción, Transaction pooler (puerto 6543)
+        sync: false
+      - key: JWT_SECRETO
+        sync: false
+      - key: LLAVE_FIRMA_BOLETOS
+        sync: false
+      - key: CORS_ORIGENES # URL del panel, p. ej. https://panel-ruta67.pages.dev
+        sync: false
