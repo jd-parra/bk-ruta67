@@ -51,8 +51,10 @@ El `Dockerfile` sirve para cualquier proveedor; `render.yaml` lo deja listo para
 1. **BD**: un proyecto de Supabase nuevo, solo para producción. Copia la URL del *Transaction pooler* (6543).
 2. **Secretos**: `npm run secretos` imprime `JWT_SECRETO` y `LLAVE_FIRMA_BOLETOS`. Guárdalos en un gestor
    de contraseñas: si se pierde la llave de firma, los boletos emitidos dejan de valer.
-3. **Servidor** (Render): *New > Blueprint* con este repo y llena `DATABASE_URL`, `JWT_SECRETO`,
+3. **Servidor** (Render, plan gratis): *New > Blueprint* con este repo y llena `DATABASE_URL`, `JWT_SECRETO`,
    `LLAVE_FIRMA_BOLETOS` y `CORS_ORIGENES` (URL del panel). Al arrancar aplica las migraciones solo.
+   El plan gratis se duerme tras 15 min sin uso: crea un monitor en UptimeRobot (gratis) que pida
+   `https://<tu-servicio>.onrender.com/api/v1/salud` cada 10 min para mantenerlo despierto.
 4. **Datos iniciales** (una vez, desde tu laptop, con un `.env.produccion` que tenga esas mismas variables y `NODE_ENV=production`):
 
    ```bash

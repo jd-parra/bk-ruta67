@@ -4,7 +4,10 @@ services:
   - type: web
     name: pasaje-backend
     runtime: docker
-    plan: starter # siempre encendido: Socket.IO y la tarea de las 4 a. m. no funcionan si el servicio se duerme
+    # Gratis: se duerme tras 15 min sin peticiones y tarda ~1 min en despertar. Para que no se duerma,
+    # un monitor gratis (UptimeRobot o cron-job.org) pide /api/v1/salud cada 10 min; las 750 h
+    # gratis al mes alcanzan para tenerlo encendido todo el mes. Si despierta, vencerBoletos corre al arrancar.
+    plan: free
     region: virginia
     branch: main
     autoDeploy: true
