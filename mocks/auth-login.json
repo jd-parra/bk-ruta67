@@ -1,5 +1,5 @@
 {
-  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2wiOiJwYXNhamVybyIsImlhdCI6MTc5MDM5NjcxOCwiZXhwIjoxNzkxMDAxNTE4LCJzdWIiOiIwMDAwMDAwMC0wMDAwLTQwMDAtODAwMC0wMDAwMDAwMDAwMDEifQ.fXf79L3GEYU-H7sUwqsQLTNKF41mCiVaoBVwLnV_ndA",
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2wiOiJwYXNhamVybyIsImlhdCI6MTc5MDkwMDg1NCwiZXhwIjoxNzkxNTA1NjU0LCJzdWIiOiIwMDAwMDAwMC0wMDAwLTQwMDAtODAwMC0wMDAwMDAwMDAwMDEifQ.7t17HRalO8d39pdvLEA5hhPD7rntOhMbIzxuYFcfvis",
   "usuario": {
     "id": "00000000-0000-4000-8000-000000000001",
     "nombre": "Ana Pasajera",
@@ -8,6 +8,6 @@
     "categoria": "estudiante",
     "categoriaVerificada": true,
     "bloqueado": false,
-    "creadoEn": "2026-09-26T04:25:18.523Z"
+    "creadoEn": "2026-10-02T00:27:33.944Z"
   }
 }

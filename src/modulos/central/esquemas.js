@@ -5,6 +5,7 @@ import { esquemaRegistro } from '../auth/esquemas.js';
 const codigoCorto = z.number().int().min(LIMITES.CODIGO_MIN).max(LIMITES.CODIGO_MAX);
 const centimos = z.number().int('Los montos van en céntimos, sin decimales').min(0);
 const fraccion = z.number().min(0).max(1);
+const punto = z.tuple([z.number().min(-90).max(90), z.number().min(-180).max(180)]);
 
 export const esquemaDesde = z.object({ desde: z.iso.datetime({ offset: true }).optional() });
 export const esquemaId = z.object({ id: z.uuid('id inválido') });
@@ -29,6 +30,8 @@ const esquemaTramo = z.object({
   nombre: z.string().trim().min(2),
   km: z.number().positive(),
   tarifaManual: centimos.nullable().optional(),
+  // Recorrido en el mapa: [lat, lng] en orden. null lo borra; sin enviar deja el que tenía.
+  trazo: z.array(punto).min(2, 'El trazo necesita al menos dos puntos').max(500).nullable().optional(),
 });
 
 const tramosSinRepetir = (tramos) => new Set(tramos.map((t) => t.codigo)).size === tramos.length;

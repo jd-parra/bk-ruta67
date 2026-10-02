@@ -3,6 +3,7 @@
   "saldoReservado": 42000,
   "boletosActivos": 3,
   "tarifaReferencia": 10000,
+  "tarifaFuente": "Gaceta Oficial, septiembre 2026 (valores de prueba)",
   "viajesEstimados": 8,
   "avisos": []
 }

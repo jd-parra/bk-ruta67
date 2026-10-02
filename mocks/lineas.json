@@ -1,12 +1,12 @@
 [
   {
-    "id": "52233622-493c-459a-ac16-2d278afa9907",
+    "id": "db1d1462-0d33-4e61-9ff5-d0190cd5cfcc",
     "codigo": 1,
     "nombre": "Chorros de Milla",
     "tipo": "urbana",
     "tramos": [
       {
-        "id": "55a3d019-d712-4e5f-b352-cf3adcab8fe0",
+        "id": "2a25fbf1-755a-4e38-b8de-a914745c35fb",
         "codigo": 1,
         "nombre": "Centro – Chorros de Milla",
         "km": 5,
@@ -14,7 +14,7 @@
         "frecuencia": 0
       },
       {
-        "id": "374e8a77-db64-4c45-b94e-b5e4e8754a1c",
+        "id": "bb2c2cba-1a33-4eb9-a32e-1353fb8151db",
         "codigo": 2,
         "nombre": "Centro – Milla",
         "km": 3,
@@ -24,13 +24,13 @@
     ]
   },
   {
-    "id": "a9aee94f-490f-4940-8b70-dd8e7ce7a7a5",
+    "id": "4ec607d3-c13b-4632-9902-4449d8c2a64d",
     "codigo": 2,
     "nombre": "San Benito",
     "tipo": "urbana",
     "tramos": [
       {
-        "id": "6ac2bbfa-eab5-4971-a44a-7e3c67df345d",
+        "id": "6782a0fe-c601-49b8-8462-ec82ddad725e",
         "codigo": 1,
         "nombre": "Centro – San Benito",
         "km": 4,
@@ -40,13 +40,13 @@
     ]
   },
   {
-    "id": "40da9c0e-fcad-48ef-a94c-623153285d3d",
+    "id": "58e5d5c8-acfa-49d9-9873-24185f9d8f9d",
     "codigo": 3,
     "nombre": "Mérida – Ejido",
     "tipo": "suburbana",
     "tramos": [
       {
-        "id": "bf964d8e-0ea9-4bba-9ff2-573c6a16c492",
+        "id": "19671050-bf16-4c4e-bda2-2addaef65454",
         "codigo": 1,
         "nombre": "Centro – Ejido",
         "km": 9,
@@ -54,7 +54,7 @@
         "frecuencia": 0
       },
       {
-        "id": "8c0eadd9-2ba1-466c-ab9b-be1ae35b2698",
+        "id": "9ee5b9f5-4705-4792-9036-4c5e757f5bc6",
         "codigo": 2,
         "nombre": "Centro – La Parroquia",
         "km": 6,

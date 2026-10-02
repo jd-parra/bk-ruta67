@@ -41,15 +41,16 @@ describe('billetera y recargas', () => {
       saldoReservado: 0,
       boletosActivos: 0,
       tarifaReferencia: 10000,
+      tarifaFuente: 'Gaceta Oficial, septiembre 2026 (valores de prueba)',
       viajesEstimados: 0,
       avisos: [],
     });
   });
 
-  test('Rosa (exonerada) tiene viajes ilimitados: viajesEstimados null', async () => {
+  test('Rosa (exonerada) paga la mitad, igual que estudiante', async () => {
     const res = await como(TEL.ROSA).get('/billetera');
-    assert.equal(res.body.tarifaReferencia, 0);
-    assert.equal(res.body.viajesEstimados, null);
+    assert.equal(res.body.tarifaReferencia, 10000);
+    assert.equal(res.body.viajesEstimados, 0);
   });
 
   test('recarga simulada suma al disponible y deja movimiento', async () => {
@@ -144,10 +145,9 @@ describe('boletos', () => {
     boletosPedro = res.body.boletos;
   });
 
-  test('Rosa (exonerada) recibe 5 boletos sin saldo: reservan 0', async () => {
+  test('Rosa (exonerada) sin saldo no recibe boletos: paga la mitad, no viaja gratis', async () => {
     const res = await como(TEL.ROSA).post('/boletos', { cantidad: 5 });
-    assert.equal(res.body.boletos.length, 5);
-    assert.ok(res.body.boletos.every((b) => b.montoReservado === 0));
+    assert.equal(res.body.error.codigo, 'SALDO_INSUFICIENTE');
   });
 
   test('el libro cuadra', verificarLibro);
@@ -220,6 +220,22 @@ describe('sincronizar cobros', () => {
       { tipo: 'cobro', monto: 0, despues: 30000 },
       { tipo: 'liberacion', monto: 4000, despues: 34000 },
     ]);
+  });
+
+  test('GET /movimientos: el cobro y su liberación traen el viaje con la tarifa real', async () => {
+    const res = await como(TEL.ANA).get('/movimientos?limite=20');
+    const delViaje = res.body.filter((m) => m.tipo === 'cobro' || m.tipo === 'liberacion');
+    assert.ok(delViaje.length >= 2);
+    for (const m of delViaje) {
+      assert.equal(m.viaje.monto, 10000);
+      assert.equal(typeof m.viaje.lineaNombre, 'string');
+      assert.equal(typeof m.viaje.tramoNombre, 'string');
+      assert.equal(typeof m.viaje.unidadCodigo, 'number');
+    }
+    assert.equal(
+      res.body.some((m) => m.tipo === 'recarga' && 'viaje' in m),
+      false,
+    );
   });
 
   test('emitir 5 boletos dejó 5 reservas con el saldo bajando de 14.000 en 14.000', async () => {

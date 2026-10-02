@@ -33,9 +33,14 @@ export async function listarAvisos(bd, usuarioId) {
 
 export async function listarMovimientos(bd, usuarioId, limite) {
   const { rows } = await bd.query(
-    `SELECT id, tipo, monto, saldo_disponible_despues, cobro_id, creado_en
-     FROM pasaje.movimientos WHERE usuario_id = $1
-     ORDER BY creado_en DESC, id LIMIT $2`,
+    `SELECT m.id, m.tipo, m.monto, m.saldo_disponible_despues, m.cobro_id, m.creado_en,
+       c.monto AS viaje_monto, c.tramo_nombre AS viaje_tramo, c.unidad_codigo AS viaje_unidad,
+       l.nombre AS viaje_linea
+     FROM pasaje.movimientos m
+     LEFT JOIN pasaje.cobros c ON c.id = m.cobro_id
+     LEFT JOIN pasaje.lineas l ON l.codigo = c.linea_codigo
+     WHERE m.usuario_id = $1
+     ORDER BY m.creado_en DESC, m.id LIMIT $2`,
     [usuarioId, limite],
   );
   return rows;
