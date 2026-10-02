@@ -53,9 +53,9 @@ export const USUARIOS_SEMILLA = [
 ];
 
 export const TABULADOR_SEMILLA = {
-  fuente: 'Tabulador septiembre 2026 (valores de prueba)',
+  fuente: 'Gaceta Oficial, septiembre 2026 (valores de prueba)',
   vigenteDesde: '2026-09-01T04:00:00Z',
-  descuentos: { general: 0, estudiante: 0.5, exonerado: 1 },
+  descuentos: { general: 0, estudiante: 0.5, exonerado: 0.5 },
   recargoDomingoFeriado: 0,
   urbanoMinimo: 20000,
   suburbano: [

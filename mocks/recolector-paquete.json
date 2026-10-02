@@ -1,20 +1,20 @@
 {
   "llavePublica": "wUaoux2eaGCiZ3axmJfFZQViUksI926t0Jal1ZqF2ck",
   "unidad": {
-    "id": "a466e6f3-5fee-4cee-adde-7fc79fe0a22f",
+    "id": "b62672a9-e43e-4902-a82e-5e498957487c",
     "codigo": 101,
     "placa": "AB123CD",
-    "lineaId": "52233622-493c-459a-ac16-2d278afa9907",
+    "lineaId": "db1d1462-0d33-4e61-9ff5-d0190cd5cfcc",
     "recolectorId": "00000000-0000-4000-8000-000000000002"
   },
   "linea": {
-    "id": "52233622-493c-459a-ac16-2d278afa9907",
+    "id": "db1d1462-0d33-4e61-9ff5-d0190cd5cfcc",
     "codigo": 1,
     "nombre": "Chorros de Milla",
     "tipo": "urbana",
     "tramos": [
       {
-        "id": "55a3d019-d712-4e5f-b352-cf3adcab8fe0",
+        "id": "2a25fbf1-755a-4e38-b8de-a914745c35fb",
         "codigo": 1,
         "nombre": "Centro – Chorros de Milla",
         "km": 5,
@@ -22,7 +22,7 @@
         "frecuencia": 0
       },
       {
-        "id": "374e8a77-db64-4c45-b94e-b5e4e8754a1c",
+        "id": "bb2c2cba-1a33-4eb9-a32e-1353fb8151db",
         "codigo": 2,
         "nombre": "Centro – Milla",
         "km": 3,
@@ -32,12 +32,12 @@
     ]
   },
   "tabulador": {
-    "id": "a69c1cc3-7ddb-47c7-bb40-1534ad18a573",
-    "fuente": "Tabulador septiembre 2026 (valores de prueba)",
+    "id": "2cf531f9-5a8a-4609-8708-629b49cae36a",
+    "fuente": "Gaceta Oficial, septiembre 2026 (valores de prueba)",
     "vigenteDesde": "2026-09-01T04:00:00.000Z",
     "descuentos": {
       "general": 0,
-      "exonerado": 1,
+      "exonerado": 0.5,
       "estudiante": 0.5
     },
     "recargoDomingoFeriado": 0,
@@ -54,7 +54,12 @@
     ]
   },
   "tabuladorProximo": null,
-  "feriados": ["2026-10-12", "2026-12-24", "2026-12-25", "2026-12-31"],
+  "feriados": [
+    "2026-10-12",
+    "2026-12-24",
+    "2026-12-25",
+    "2026-12-31"
+  ],
   "revocados": [],
-  "generadoEn": "2026-09-26T04:25:19.094Z"
+  "generadoEn": "2026-10-02T00:27:34.495Z"
 }

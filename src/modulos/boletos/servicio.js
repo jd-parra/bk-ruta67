@@ -109,7 +109,7 @@ export function avisarRecolectores() {
 }
 
 /**
- * Cuántos boletos emitir. Con reserva 0 (exonerados) el saldo no limita.
+ * Cuántos boletos emitir. Con reserva 0 (descuento del 100 %) el saldo no limita.
  * @throws {ErrorApp} SALDO_INSUFICIENTE si hay cupo pero no saldo para ninguno
  */
 export function cuantosEmitir({ pedidos, libres, disponible, montoReservado }) {

@@ -175,6 +175,39 @@ describe('líneas y tramos', () => {
     assert.equal('tarifaManual' in res.body.tramos[1], false);
   });
 
+  test('PUT guarda el trazo de un tramo y lo conserva si no se envía', async () => {
+    const trazo = [
+      [8.5897, -71.1561],
+      [8.6, -71.17],
+      [8.61, -71.2],
+    ];
+    const guardado = await central().put(`/central/lineas/${lineaId}`, {
+      tramos: [{ codigo: 3, nombre: 'Centro – San Juan', km: 20, trazo }],
+    });
+    assert.equal(guardado.status, 200);
+    assert.deepEqual(guardado.body.tramos[2].trazo, trazo);
+    assert.equal('trazo' in guardado.body.tramos[0], false);
+
+    const sinTrazo = await central().put(`/central/lineas/${lineaId}`, {
+      tramos: [{ codigo: 3, nombre: 'Centro – San Juan', km: 21 }],
+    });
+    assert.deepEqual(sinTrazo.body.tramos[2].trazo, trazo);
+
+    const borrado = await central().put(`/central/lineas/${lineaId}`, {
+      tramos: [{ codigo: 3, nombre: 'Centro – San Juan', km: 21, trazo: null }],
+    });
+    assert.equal('trazo' in borrado.body.tramos[2], false);
+  });
+
+  test('trazo inválido → 400', async () => {
+    for (const trazo of [[[8.5, -71.1]], [[95, 0], [8, -71]], [['a', 'b'], [1, 2]]]) {
+      const res = await central().put(`/central/lineas/${lineaId}`, {
+        tramos: [{ codigo: 3, nombre: 'Centro – San Juan', km: 21, trazo }],
+      });
+      assert.equal(res.status, 400, JSON.stringify(trazo));
+    }
+  });
+
   test('la nueva línea sube la reserva de los boletos (tarifa máxima de la red)', async () => {
     const res = await como(TEL.ANA).post('/recargas', { monto: 60000, metodo: 'simulada' });
     assert.equal(res.status, 201);

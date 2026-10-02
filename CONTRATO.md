@@ -94,6 +94,7 @@ interface Billetera {
   saldoReservado: number;        // céntimos, comprometido en boletos sin usar
   boletosActivos: number;
   tarifaReferencia: number;      // urbano mínimo con el descuento de su categoría
+  tarifaFuente: string;          // fuente del tabulador vigente ("Gaceta Oficial …"), se muestra junto a la tarifa
   viajesEstimados: number;       // floor((disponible + reservado) / tarifaReferencia)
   avisos: Aviso[];
 }
@@ -119,6 +120,12 @@ interface Movimiento {
   monto: number;                 // + entra al disponible, − sale del disponible
   saldoDisponibleDespues: number;
   cobroId?: string;
+  viaje?: {                      // solo en cobro y liberacion de un cobro: lo que costó de verdad
+    monto: number;               // tarifa cobrada (céntimos)
+    lineaNombre: string;
+    tramoNombre: string;
+    unidadCodigo: number;
+  };
   creadoEn: string;
 }
 
@@ -127,7 +134,7 @@ interface Tabulador {
   id: string;
   fuente: string;                // "Gaceta Oficial N° 43.xxx" / "Acuerdo Concejo Municipal"
   vigenteDesde: string;
-  descuentos: { general: number; estudiante: number; exonerado: number }; // 0, 0.5, 1
+  descuentos: { general: number; estudiante: number; exonerado: number }; // 0, 0.5, 0.5
   recargoDomingoFeriado: number; // 0.2 = +20 %; 0 si no aplica
   urbanoMinimo: number;          // céntimos, pasaje completo
   suburbano: { hastaKm: number; monto: number }[];
@@ -149,6 +156,7 @@ interface Tramo {
   tarifaCompleta: number;        // calculada por el backend
   tarifaManual?: number;         // solo la central; gana sobre el cálculo
   frecuencia: number;            // cobros de los últimos 30 días, para ordenar botones
+  trazo?: [number, number][];    // recorrido en el mapa, puntos [lat, lng] en orden (lo marca la central)
 }
 
 interface Unidad {
@@ -255,7 +263,7 @@ interface Cobro {
 ### 6.5 Central
 - `GET /central/resumen?desde=`
 - `POST /central/tabuladores` · `GET /central/tabuladores`
-- `GET/POST/PUT /central/lineas` (con tramos y `tarifaManual`)
+- `GET/POST/PUT /central/lineas` (con tramos, `tarifaManual` y `trazo`; en el PUT, un tramo sin `trazo` conserva el suyo y `trazo: null` lo borra)
 - `GET /central/categorias/pendientes` · `PUT /central/usuarios/:id/categoria` `{ verificada }`
 - `GET /central/conflictos` · `PUT /central/usuarios/:id/bloqueo` `{ bloqueado }`
 - `GET/POST /central/unidades`
@@ -270,7 +278,7 @@ interface Cobro {
 
 1. El **Ministerio de Transporte** publica en Gaceta Oficial el pasaje urbano mínimo nacional y una escala suburbana por km. En 2026 se indexa a 0,25 USD tasa BCV y se ajusta cada mes (septiembre 2026: urbano 200 Bs; suburbano de 280 a 990 Bs).
 2. El **Concejo Municipal** y el sindicato bajan eso a un tabulador por ruta según la distancia.
-3. **Descuentos por ley:** estudiante 50 %; adultos mayores y personas con discapacidad exonerados. Algunas gacetas suman recargo en domingos y feriados.
+3. **Descuentos:** estudiante 50 %; adultos mayores y personas con discapacidad (categoría `exonerado`) también 50 %. Algunas gacetas suman recargo en domingos y feriados.
 
 El sistema guarda **distancias, no precios**:
 
@@ -417,9 +425,9 @@ Los `BOLETO_*` los detecta primero la app del recolector sin internet; el backen
     { "telefono": "04140000006", "clave": "1234", "nombre": "Marta Recolectora", "rol": "recolector" }
   ],
   "tabulador": {
-    "fuente": "Tabulador septiembre 2026 (valores de prueba)",
+    "fuente": "Gaceta Oficial, septiembre 2026 (valores de prueba)",
     "vigenteDesde": "2026-09-01T04:00:00Z",
-    "descuentos": { "general": 0, "estudiante": 0.5, "exonerado": 1 },
+    "descuentos": { "general": 0, "estudiante": 0.5, "exonerado": 0.5 },
     "recargoDomingoFeriado": 0,
     "urbanoMinimo": 20000,
     "suburbano": [ { "hastaKm": 10, "monto": 28000 }, { "hastaKm": 9999, "monto": 99000 } ]
@@ -515,7 +523,8 @@ Huecos del contrato que había que decidir para implementar. Referencia completa
 
 **Dinero**
 - El movimiento `cobro` tiene `monto: 0`: el cobro sale de lo reservado, no del disponible. La diferencia entre lo reservado y la tarifa real entra como `liberacion`.
-- `viajesEstimados` es `null` cuando `tarifaReferencia` es 0 (exonerados): viajes ilimitados.
+- `viajesEstimados` es `null` cuando `tarifaReferencia` es 0 (un tabulador con descuento del 100 %): viajes ilimitados.
+- Los movimientos `cobro` y su `liberacion` traen `viaje` con la tarifa real, para que la app muestre "Viaje pagado −200 Bs" en vez de la reserva y la devolución por separado.
 - Fase 1: `POST /recargas` solo acepta `metodo: "simulada"`. Máximo por recarga: 100.000,00 Bs.
 - Un boleto vencido libera su reserva **24 h después** de `expira`, para que alcancen a sincronizar los cobros hechos sin conexión.
 

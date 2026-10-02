@@ -1,12 +1,12 @@
 [
   {
-    "id": "445d3fc3-a67d-477d-9755-072efbf8ac1e",
+    "id": "ab7a9a0a-ee96-43c2-9977-65eb0448fa88",
     "nombre": "Estudiante Nuevo",
     "telefono": "04261112233",
     "rol": "pasajero",
     "categoria": "estudiante",
     "categoriaVerificada": false,
     "bloqueado": false,
-    "creadoEn": "2026-09-26T04:25:18.982Z"
+    "creadoEn": "2026-10-02T00:27:34.381Z"
   }
 ]

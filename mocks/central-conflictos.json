@@ -1,7 +1,7 @@
 [
   {
-    "id": "f73d568d-8533-4047-a3e7-402ab99d0f6f",
-    "bid": "dabc14f0-7b5c-4e9e-ad06-7fddea4941e8",
+    "id": "2a35e514-a4de-45e3-b8a4-e23bffcefb47",
+    "bid": "1a43fc60-7c8b-4b7b-8bf7-18b7acb9e4e4",
     "pasajero": {
       "id": "00000000-0000-4000-8000-000000000001",
       "nombre": "Ana Pasajera",
@@ -9,19 +9,19 @@
       "bloqueado": true
     },
     "cobroOriginal": {
-      "id": "924bbdd0-a6d0-4d6b-ae2a-a3a3da1e7fd8",
+      "id": "15a4f6c7-378f-436e-bdbf-41ccc79fd557",
       "unidadCodigo": 101,
       "recolectorNombre": "Luis Recolector",
       "monto": 10000,
-      "ocurridoEn": "2026-09-26T04:25:19.095Z"
+      "ocurridoEn": "2026-10-02T00:27:34.495Z"
     },
     "segundoUso": {
       "unidadCodigo": 102,
       "recolectorNombre": "Marta Recolectora",
       "monto": 10000,
-      "ocurridoEn": "2026-09-26T04:25:19.195Z"
+      "ocurridoEn": "2026-10-02T00:27:34.598Z"
     },
-    "creadoEn": "2026-09-26T04:25:19.204Z",
+    "creadoEn": "2026-10-02T00:27:34.605Z",
     "resuelto": false
   }
 ]

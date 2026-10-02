@@ -1,11 +1,11 @@
 {
   "tabulador": {
-    "id": "a69c1cc3-7ddb-47c7-bb40-1534ad18a573",
-    "fuente": "Tabulador septiembre 2026 (valores de prueba)",
+    "id": "2cf531f9-5a8a-4609-8708-629b49cae36a",
+    "fuente": "Gaceta Oficial, septiembre 2026 (valores de prueba)",
     "vigenteDesde": "2026-09-01T04:00:00.000Z",
     "descuentos": {
       "general": 0,
-      "exonerado": 1,
+      "exonerado": 0.5,
       "estudiante": 0.5
     },
     "recargoDomingoFeriado": 0,

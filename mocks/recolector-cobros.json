@@ -3,8 +3,8 @@
   "cantidad": 2,
   "cobros": [
     {
-      "id": "bee361bf-e1d9-4712-80b9-e910b23039db",
-      "bid": "7ebed502-bd7f-4ea1-8acf-77cb01bc2c53",
+      "id": "62b82a01-4af6-4286-a320-ce518d584b68",
+      "bid": "9beb17d3-b454-46a7-9eda-160a8289102e",
       "pasajeroNombre": "Ana Pasajera",
       "categoriaAplicada": "estudiante",
       "lineaCodigo": 1,
@@ -13,14 +13,16 @@
       "unidadCodigo": 101,
       "monto": 10000,
       "metodo": "nfc",
-      "ocurridoEn": "2026-09-26T04:25:19.145Z",
-      "sincronizadoEn": "2026-09-26T04:25:19.154Z",
-      "confirmadoPor": ["recolector"],
+      "ocurridoEn": "2026-10-02T00:27:34.553Z",
+      "sincronizadoEn": "2026-10-02T00:27:34.560Z",
+      "confirmadoPor": [
+        "recolector"
+      ],
       "estado": "ok"
     },
     {
-      "id": "924bbdd0-a6d0-4d6b-ae2a-a3a3da1e7fd8",
-      "bid": "dabc14f0-7b5c-4e9e-ad06-7fddea4941e8",
+      "id": "15a4f6c7-378f-436e-bdbf-41ccc79fd557",
+      "bid": "1a43fc60-7c8b-4b7b-8bf7-18b7acb9e4e4",
       "pasajeroNombre": "Ana Pasajera",
       "categoriaAplicada": "estudiante",
       "lineaCodigo": 1,
@@ -29,9 +31,11 @@
       "unidadCodigo": 101,
       "monto": 10000,
       "metodo": "nfc",
-      "ocurridoEn": "2026-09-26T04:25:19.095Z",
-      "sincronizadoEn": "2026-09-26T04:25:19.106Z",
-      "confirmadoPor": ["recolector"],
+      "ocurridoEn": "2026-10-02T00:27:34.495Z",
+      "sincronizadoEn": "2026-10-02T00:27:34.507Z",
+      "confirmadoPor": [
+        "recolector"
+      ],
       "estado": "ok"
     }
   ]

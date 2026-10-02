@@ -38,7 +38,7 @@ Errores, siempre: `{ "error": { "codigo", "mensaje", "detalle?" } }`. `mensaje` 
 | GET | `/me/frecuentes` | — | `{ lineaCodigo, tramoCodigo, veces }[]` | `me-frecuentes` |
 
 - `POST /boletos` completa hasta 5 activos según alcance el saldo. Si ya tiene 5, responde `boletos: []`. Si no alcanza ni para uno: `422 SALDO_INSUFICIENTE`.
-- `viajesEstimados` es `null` para exonerados (viajes ilimitados).
+- `viajesEstimados` es `null` solo si el descuento de la categoría es 100 % (viajes ilimitados). `tarifaFuente` dice de qué gaceta sale la tarifa.
 - `/sync/recibos` (fase 2): el pasajero sube los recibos del paso 3 NFC. Si su recibo llega antes que el cobro del recolector, el cobro se crea con el recibo; el que llega segundo solo lo confirma (`confirmadoPor` pasa a tener los dos).
 
 ## Recolector

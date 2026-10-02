@@ -7,7 +7,8 @@ import { serializarBilletera, serializarMovimiento } from './serializadores.js';
 
 /**
  * Billetera del pasajero en forma de contrato.
- * `tarifaReferencia` = urbano mínimo con el descuento de su categoría (sin recargo).
+ * `tarifaReferencia` = urbano mínimo con el descuento de su categoría (sin recargo);
+ * `tarifaFuente` = de qué gaceta sale, para mostrarlo junto a "te alcanza para N viajes".
  * @param {object} usuario fila de BD
  * @param {import('pg').Pool | import('pg').PoolClient} [bd]
  */
@@ -39,7 +40,13 @@ export async function obtenerBilleteraPorId(usuarioId) {
 function armar(usuario, saldos, boletosActivos, avisos, tabulador) {
   const descuento = tabulador.descuentos[categoriaEfectiva(usuario)];
   const tarifaReferencia = aplicarAjustes(tabulador.urbanoMinimo, 0, descuento);
-  return serializarBilletera({ saldos, boletosActivos, tarifaReferencia, avisos });
+  return serializarBilletera({
+    saldos,
+    boletosActivos,
+    tarifaReferencia,
+    tarifaFuente: tabulador.fuente,
+    avisos,
+  });
 }
 
 /**

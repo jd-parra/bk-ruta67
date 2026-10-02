@@ -7,7 +7,7 @@ const CONSULTA_LINEAS = `
       json_agg(
         json_build_object(
           'id', t.id, 'codigo', t.codigo, 'nombre', t.nombre, 'km', t.km,
-          'tarifaManual', t.tarifa_manual, 'frecuencia', coalesce(f.veces, 0)
+          'tarifaManual', t.tarifa_manual, 'trazo', t.trazo, 'frecuencia', coalesce(f.veces, 0)
         ) ORDER BY t.codigo
       ) FILTER (WHERE t.id IS NOT NULL),
       '[]'
@@ -68,13 +68,25 @@ export async function actualizarLinea(bd, lineaId, { nombre, tipo }) {
   return rowCount > 0;
 }
 
-/** Crea o actualiza un tramo por (línea, código). `tarifaManual: null` la quita. */
-export async function guardarTramo(bd, lineaId, { codigo, nombre, km, tarifaManual }) {
+/**
+ * Crea o actualiza un tramo por (línea, código). `tarifaManual: null` la quita.
+ * `trazo` sin enviar deja el que tenía; `trazo: null` lo borra.
+ */
+export async function guardarTramo(bd, lineaId, { codigo, nombre, km, tarifaManual, trazo }) {
   await bd.query(
-    `INSERT INTO pasaje.tramos (linea_id, codigo, nombre, km, tarifa_manual)
-     VALUES ($1, $2, $3, $4, $5)
+    `INSERT INTO pasaje.tramos (linea_id, codigo, nombre, km, tarifa_manual, trazo)
+     VALUES ($1, $2, $3, $4, $5, $6)
      ON CONFLICT (linea_id, codigo)
-     DO UPDATE SET nombre = EXCLUDED.nombre, km = EXCLUDED.km, tarifa_manual = EXCLUDED.tarifa_manual`,
-    [lineaId, codigo, nombre, km, tarifaManual ?? null],
+     DO UPDATE SET nombre = EXCLUDED.nombre, km = EXCLUDED.km, tarifa_manual = EXCLUDED.tarifa_manual,
+       trazo = CASE WHEN $7 THEN EXCLUDED.trazo ELSE pasaje.tramos.trazo END`,
+    [
+      lineaId,
+      codigo,
+      nombre,
+      km,
+      tarifaManual ?? null,
+      trazo ? JSON.stringify(trazo) : null,
+      trazo !== undefined,
+    ],
   );
 }
