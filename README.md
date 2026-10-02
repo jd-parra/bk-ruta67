@@ -37,11 +37,22 @@ Copia la carpeta `shared/` tal cual a la app. Solo depende de `tweetnacl` y no u
 ```bash
 npm run boleto-prueba                                   # Ana, estudiante, tramo sugerido 1
 npm run boleto-prueba -- --telefono 04140000004 --tramo 2   # Pedro, general
-npm run boleto-prueba -- --telefono 04140000005             # Rosa, exonerada (reserva 0)
+npm run boleto-prueba -- --telefono 04140000005             # Rosa, exonerada (paga la mitad)
 npm run boleto-prueba -- --vencido                          # para probar BOLETO_VENCIDO
 ```
 
 Imprime el `raw` (base64url), el `hex`, la `llavePublica` para verificarlo y `respuestaPedirBoletoHex`: la respuesta completa al `PEDIR_BOLETO` del §9 (boleto + tramo sugerido + `90 00`), lista para devolverla desde el HCE.
+
+### Cargar un tabulador (aumento de pasaje)
+
+```bash
+bash scripts/cargarTabulador.sh                                  # producción (Render)
+API=http://localhost:3001/api/v1 bash scripts/cargarTabulador.sh # otro backend
+```
+
+Entra como la central (pide teléfono y clave sin mostrarla) y pregunta la fuente (gaceta), la fecha de vigencia, los montos **en Bs** (se envían en céntimos), los descuentos y el recargo de domingos y feriados. Valida cada respuesta, muestra el tabulador y pide confirmación antes de cargarlo. Necesita `curl` y `jq`.
+
+Al cargarlo, los pasajeros reciben el aviso y los recolectores el paquete nuevo. Si sube la tarifa más cara de la red, los boletos ya emitidos se quedan cortos para esa ruta hasta que el pasajero se conecte y los renueve.
 
 ## Desplegar (producción)
 
