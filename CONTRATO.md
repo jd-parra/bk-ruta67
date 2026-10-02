@@ -156,7 +156,8 @@ interface Tramo {
   tarifaCompleta: number;        // calculada por el backend
   tarifaManual?: number;         // solo la central; gana sobre el cálculo
   frecuencia: number;            // cobros de los últimos 30 días, para ordenar botones
-  trazo?: [number, number][];    // recorrido en el mapa, puntos [lat, lng] en orden (lo marca la central)
+  trazo?: [number, number][];    // forma del recorrido en el mapa, [lat, lng] en orden (no son paradas)
+  paradas?: { nombre: string; lat: number; lng: number }[]; // paradas en orden de recorrido
 }
 
 interface Unidad {
@@ -263,7 +264,7 @@ interface Cobro {
 ### 6.5 Central
 - `GET /central/resumen?desde=`
 - `POST /central/tabuladores` · `GET /central/tabuladores`
-- `GET/POST/PUT /central/lineas` (con tramos, `tarifaManual` y `trazo`; en el PUT, un tramo sin `trazo` conserva el suyo y `trazo: null` lo borra)
+- `GET/POST/PUT /central/lineas` (con tramos, `tarifaManual`, `trazo` y `paradas`; en el PUT, un tramo sin `trazo` o `paradas` conserva lo suyo y `null` lo borra)
 - `GET /central/categorias/pendientes` · `PUT /central/usuarios/:id/categoria` `{ verificada }`
 - `GET /central/conflictos` · `PUT /central/usuarios/:id/bloqueo` `{ bloqueado }`
 - `GET/POST /central/unidades`

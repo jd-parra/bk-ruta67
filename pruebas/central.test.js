@@ -199,6 +199,40 @@ describe('líneas y tramos', () => {
     assert.equal('trazo' in borrado.body.tramos[2], false);
   });
 
+  test('PUT guarda las paradas aparte del trazo y las conserva si no se envían', async () => {
+    const paradas = [
+      { nombre: 'Plaza Bolívar', lat: 8.5897, lng: -71.1561 },
+      { nombre: 'Terminal', lat: 8.6, lng: -71.18 },
+    ];
+    const guardado = await central().put(`/central/lineas/${lineaId}`, {
+      tramos: [{ codigo: 3, nombre: 'Centro – San Juan', km: 21, paradas }],
+    });
+    assert.equal(guardado.status, 200);
+    assert.deepEqual(guardado.body.tramos[2].paradas, paradas);
+
+    const sinParadas = await central().put(`/central/lineas/${lineaId}`, {
+      tramos: [{ codigo: 3, nombre: 'Centro – San Juan', km: 21 }],
+    });
+    assert.deepEqual(sinParadas.body.tramos[2].paradas, paradas);
+
+    const vacias = await central().put(`/central/lineas/${lineaId}`, {
+      tramos: [{ codigo: 3, nombre: 'Centro – San Juan', km: 21, paradas: [] }],
+    });
+    assert.equal('paradas' in vacias.body.tramos[2], false);
+  });
+
+  test('parada sin nombre o fuera del mapa → 400', async () => {
+    for (const parada of [
+      { nombre: ' ', lat: 8.5, lng: -71.1 },
+      { nombre: 'X', lat: 91, lng: -71.1 },
+    ]) {
+      const res = await central().put(`/central/lineas/${lineaId}`, {
+        tramos: [{ codigo: 3, nombre: 'Centro – San Juan', km: 21, paradas: [parada] }],
+      });
+      assert.equal(res.status, 400, JSON.stringify(parada));
+    }
+  });
+
   test('trazo inválido → 400', async () => {
     for (const trazo of [[[8.5, -71.1]], [[95, 0], [8, -71]], [['a', 'b'], [1, 2]]]) {
       const res = await central().put(`/central/lineas/${lineaId}`, {

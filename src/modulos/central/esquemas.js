@@ -32,6 +32,18 @@ const esquemaTramo = z.object({
   tarifaManual: centimos.nullable().optional(),
   // Recorrido en el mapa: [lat, lng] en orden. null lo borra; sin enviar deja el que tenía.
   trazo: z.array(punto).min(2, 'El trazo necesita al menos dos puntos').max(500).nullable().optional(),
+  // Paradas, en orden de recorrido. Son aparte del trazo: los puntos del trazo solo dan la forma.
+  paradas: z
+    .array(
+      z.object({
+        nombre: z.string().trim().min(1, 'Cada parada necesita un nombre').max(60),
+        lat: z.number().min(-90).max(90),
+        lng: z.number().min(-180).max(180),
+      }),
+    )
+    .max(100)
+    .nullable()
+    .optional(),
 });
 
 const tramosSinRepetir = (tramos) => new Set(tramos.map((t) => t.codigo)).size === tramos.length;

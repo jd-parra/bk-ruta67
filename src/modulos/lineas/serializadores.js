@@ -25,5 +25,6 @@ function serializarTramo(linea, tramo, tabulador) {
     serializado.tarifaManual = tramo.tarifaManual;
   }
   if (tramo.trazo?.length) serializado.trazo = tramo.trazo;
+  if (tramo.paradas?.length) serializado.paradas = tramo.paradas;
   return serializado;
 }
