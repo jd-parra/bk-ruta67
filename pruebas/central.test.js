@@ -243,10 +243,12 @@ describe('líneas y tramos', () => {
   });
 
   test('la nueva línea sube la reserva de los boletos (tarifa máxima de la red)', async () => {
-    const res = await como(TEL.ANA).post('/recargas', { monto: 60000, metodo: 'simulada' });
+    const res = await como(TEL.ANA).post('/recargas', { monto: 72000, metodo: 'simulada' });
     assert.equal(res.status, 201);
     const boletos = await como(TEL.ANA).post('/boletos', { cantidad: 1 });
-    assert.equal(boletos.body.boletos[0].montoReservado, 49500); // 99.000 × 0,5
+    // Hoy: 99.000 × 0,5 = 49.500. Pero ya hay un aumento anunciado (tabulador 2099: más de 10 km
+    // a 120.000, +20 % domingos) y la reserva cubre también ese: 120.000 × 1,2 × 0,5.
+    assert.equal(boletos.body.boletos[0].montoReservado, 72000);
   });
 
   test('PUT a una línea que no existe → 404', async () => {
@@ -407,8 +409,8 @@ describe('bloqueo manual y conflictos', () => {
   });
 
   test('un doble gasto aparece en /central/conflictos', async () => {
-    // La línea 4 subió la reserva general a 99.000: Pedro necesita saldo.
-    await como(TEL.PEDRO).post('/recargas', { monto: 100000, metodo: 'simulada' });
+    // La línea 4 y el aumento anunciado (2099) subieron la reserva general a 144.000: Pedro necesita saldo.
+    await como(TEL.PEDRO).post('/recargas', { monto: 144000, metodo: 'simulada' });
     const [boleto] = (await como(TEL.PEDRO).post('/boletos', { cantidad: 1 })).body.boletos;
     const cobro = (tramoCodigo, ocurridoEn) => ({
       cobros: [{ raw: boleto.raw, tramoCodigo, monto: 0, metodo: 'nfc', ocurridoEn }],

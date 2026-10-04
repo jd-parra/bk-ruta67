@@ -69,6 +69,19 @@ export async function revocarActivos(bd, usuarioId) {
 }
 
 /**
+ * Revoca los activos que reservaron menos de `montoMinimo` (emitidos antes de un aumento) y los devuelve.
+ */
+export async function revocarInsuficientes(bd, usuarioId, montoMinimo) {
+  const { rows } = await bd.query(
+    `UPDATE pasaje.boletos SET estado = 'revocado', actualizado_en = now()
+     WHERE usuario_id = $1 AND estado = 'activo' AND expira_en > now() AND monto_reservado < $2
+     RETURNING ${COLUMNAS}`,
+    [usuarioId, montoMinimo],
+  );
+  return rows;
+}
+
+/**
  * bid que el recolector debe rechazar sin conexión: revocados que todavía no vencieron
  * y activos de cuentas bloqueadas.
  */

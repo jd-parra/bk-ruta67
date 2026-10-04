@@ -17,23 +17,29 @@ import * as repositorio from './repositorio.js';
 /**
  * Emite boletos hasta completar 5 activos, según alcance el saldo disponible (§6.2, §8.2).
  * Cada boleto reserva la tarifa más cara de la red para la categoría del pasajero.
+ * Tras un aumento, los activos que reservaron de menos se revocan y su reserva vuelve al
+ * disponible antes de emitir: el pasajero queda con boletos que cubren el pasaje nuevo.
  * @param {object} usuario fila de BD
  * @param {number} cantidad pedida
  * @returns {Promise<{ boletos: object[], billetera: object }>}
- * @throws {ErrorApp} SALDO_INSUFICIENTE si no alcanza ni para uno
+ * @throws {ErrorApp} SALDO_INSUFICIENTE si no alcanza ni para uno (y entonces no se revoca nada)
  */
 export async function emitirBoletos(usuario, cantidad) {
   const categoria = categoriaEfectiva(usuario);
   const montoReservado = await calcularReserva(categoria);
-  const boletos = await conTransaccion(async (cliente) => {
-    const { disponible, activos } = await repositorio.bloquearParaEmitir(cliente, usuario.id);
+  const { boletos, reemplazados } = await conTransaccion(async (cliente) => {
+    const bloqueo = await repositorio.bloquearParaEmitir(cliente, usuario.id);
+    const viejos = await repositorio.revocarInsuficientes(cliente, usuario.id, montoReservado);
+    await liberarReservas(cliente, usuario.id, viejos);
+    // Si no alcanza ni para uno, SALDO_INSUFICIENTE deshace también la revocación: los viejos
+    // siguen sirviendo hasta el aumento y, después, para las rutas más baratas.
     const aEmitir = cuantosEmitir({
       pedidos: cantidad,
-      libres: LIMITES.MAX_BOLETOS_ACTIVOS - activos,
-      disponible,
+      libres: LIMITES.MAX_BOLETOS_ACTIVOS - (bloqueo.activos - viejos.length),
+      disponible: bloqueo.disponible + viejos.reduce((suma, b) => suma + b.monto_reservado, 0),
       montoReservado,
     });
-    if (aEmitir === 0) return [];
+    if (aEmitir === 0) return { boletos: [], reemplazados: viejos.length };
 
     const expiraEn = new Date(calcularExpira(new Date()) * 1000);
     const nuevos = Array.from({ length: aEmitir }, () => ({
@@ -54,8 +60,9 @@ export async function emitirBoletos(usuario, cantidad) {
         boletoBid: b.bid,
       })),
     );
-    return nuevos.map(serializarBoleto);
+    return { boletos: nuevos.map(serializarBoleto), reemplazados: viejos.length };
   });
+  if (reemplazados > 0) avisarRecolectores(); // los viejos pasan a la lista de revocados
   return { boletos, billetera: await obtenerBilletera(usuario) };
 }
 
@@ -77,19 +84,23 @@ export async function listarActivos(usuario, bd) {
  */
 export async function revocarTodos(cliente, usuarioId) {
   const revocados = await repositorio.revocarActivos(cliente, usuarioId);
-  if (revocados.length > 0) {
-    await moverSaldo(
-      cliente,
-      usuarioId,
-      revocados.map((boleto) => ({
-        tipo: TIPOS_MOVIMIENTO.LIBERACION,
-        disponible: boleto.monto_reservado,
-        reservado: -boleto.monto_reservado,
-        boletoBid: boleto.bid,
-      })),
-    );
-  }
+  await liberarReservas(cliente, usuarioId, revocados);
   return revocados.length;
+}
+
+/** Devuelve al disponible lo que reservaban unos boletos recién revocados. */
+async function liberarReservas(cliente, usuarioId, boletos) {
+  if (boletos.length === 0) return;
+  await moverSaldo(
+    cliente,
+    usuarioId,
+    boletos.map((boleto) => ({
+      tipo: TIPOS_MOVIMIENTO.LIBERACION,
+      disponible: boleto.monto_reservado,
+      reservado: -boleto.monto_reservado,
+      boletoBid: boleto.bid,
+    })),
+  );
 }
 
 /**
@@ -124,9 +135,17 @@ export function cuantosEmitir({ pedidos, libres, disponible, montoReservado }) {
   return cantidad;
 }
 
+/** Lo más caro de la red con el tabulador vigente o con el próximo: así sirven también después de un aumento ya anunciado. */
 async function calcularReserva(categoria) {
-  const [{ tabulador }, lineas] = await Promise.all([vigenteYProximo(), lineasParaTarifas()]);
-  return tarifaMaximaRed({ lineas, tabulador, categoria });
+  const [{ tabulador, proximo }, lineas] = await Promise.all([
+    vigenteYProximo(),
+    lineasParaTarifas(),
+  ]);
+  return Math.max(
+    ...[tabulador, proximo]
+      .filter(Boolean)
+      .map((t) => tarifaMaximaRed({ lineas, tabulador: t, categoria })),
+  );
 }
 
 /** Fila de boleto → `BoletoEmitido` del contrato. */
