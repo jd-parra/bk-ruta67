@@ -316,6 +316,11 @@ Esta función vive en `/shared/tarifa.js` y la usan **igual** el backend y la ap
 
 `montoReservado` = la tarifa **más cara de toda la red** para la categoría del pasajero, con recargo incluido. Así cualquier tramo cabe en un boleto. Al cobrar se usa la tarifa real y **la diferencia vuelve al saldo disponible** (`Movimiento` tipo `liberacion`).
 
+**Aumentos de pasaje:**
+- Si ya hay un tabulador próximo, la reserva es la más cara **entre el vigente y el próximo**: los boletos sirven antes y después del aumento.
+- `POST /boletos` revoca primero los activos que reservaron menos de lo que hoy corresponde (emitidos antes del aumento), devuelve su reserva al disponible (`liberacion`) y emite boletos nuevos. Los revocados entran en `revocados` del paquete (`paquete:actualizado`). La app no cambia: al renovar, `GET /boletos` ya no los trae.
+- Si el saldo no alcanza ni para un boleto nuevo (`SALDO_INSUFICIENTE`), no se revoca nada: los viejos siguen sirviendo hasta el aumento y, después, para las rutas más baratas.
+
 ### 8.3 Reglas del recolector al leer un boleto
 
 En orden; el primero que falle muestra el error:
